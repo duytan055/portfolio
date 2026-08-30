@@ -1,0 +1,186 @@
+.intro {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #160d3b;
+
+  z-index: 9999;
+
+  animation: introExit 1s ease 4s forwards;
+}
+
+.intro-content {
+  text-align: center;
+}
+
+.intro-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 25px;
+
+  margin-bottom: 8px;
+}
+
+.intro-icon {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  box-sizing: border-box;
+
+  border-radius: 50%;
+
+  color: white;
+
+  background: rgba(255, 255, 255, 0.04);
+
+  border: 1px solid rgba(150, 120, 255, 0.5);
+
+  box-shadow:
+    0 0 12px rgba(118, 82, 255, 0.6),
+    0 0 30px rgba(118, 82, 255, 0.25);
+
+  opacity: 0;
+
+  animation: iconDrop 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+.icon-1 {
+  animation-delay: 0.2s;
+}
+
+.icon-2 {
+  animation-delay: 0.4s;
+}
+
+.icon-3 {
+  animation-delay: 0.6s;
+}
+
+.intro,
+.intro-content,
+.intro-icons,
+.intro-icon {
+  box-sizing: border-box;
+}
+/* ICON DROP */
+
+@keyframes iconDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(-180px);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateY(12px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* TITLE */
+
+.intro-title {
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  font-size: 56px;
+  line-height: 1;
+
+  font-weight: 700;
+
+  overflow: hidden;
+}
+
+/* Welcome To My */
+
+.title-top {
+  display: block;
+
+  color: white;
+
+  opacity: 0;
+
+  transform: translateX(-200px);
+
+  animation: textFromLeft 1s ease 1s forwards;
+}
+
+/* Portfolio Website */
+
+.title-bottom {
+  display: block;
+
+  color: #7652ff;
+
+  margin-top: 2px;
+
+  text-shadow:
+    0 0 10px rgba(118, 82, 255, 0.6),
+    0 0 30px rgba(118, 82, 255, 0.35);
+
+  opacity: 0;
+
+  transform: translateY(150px);
+
+  animation: textFromBottom 1s ease 1.3s forwards;
+}
+
+/* LEFT → RIGHT */
+
+@keyframes textFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-200px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* BOTTOM → TOP */
+
+@keyframes textFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(150px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* EXIT */
+
+@keyframes introExit {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
