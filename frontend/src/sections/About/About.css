@@ -58,7 +58,7 @@
 .about-info h2 span {
   display: block;
 
-  font-size: 20px;
+  font-size: 25px;
   font-weight: 400;
 
   color: var(--text-h);
@@ -69,6 +69,7 @@
 .about-info h2 strong {
   display: block;
 
+  font-size: 40px;
   background: linear-gradient(90deg, #7652ff, #a855f7, #c084fc);
 
   -webkit-background-clip: text;

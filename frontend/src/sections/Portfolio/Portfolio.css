@@ -1,0 +1,437 @@
+/* ========================================
+   1. PORTFOLIO SELECT (FILTER BUTTONS)
+======================================== */
+.portfolio-select {
+  width: fit-content;
+  margin: 0 auto 50px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+.portfolio-select .box {
+  padding: 14px 28px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text, #ffffff);
+  transition: all 0.3s ease;
+}
+
+.portfolio-select .box:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.portfolio-select .box.active {
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--text-h, #ffffff);
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================
+   2. PROJECT GRID & CARDS
+======================================== */
+.portfolio-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.project-card {
+  overflow: hidden;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.project-image {
+  width: 100%;
+  height: 190px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.project-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.project-card:hover .project-image img {
+  transform: scale(1.05);
+}
+
+.project-info {
+  padding: 15px 8px 8px;
+}
+
+.project-info h2 {
+  margin: 0 0 10px;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text-h, #ffffff);
+}
+
+.project-info p {
+  margin: 0;
+  min-height: 42px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text, #94a3b8);
+  opacity: 0.7;
+}
+
+.project-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.live-demo {
+  color: var(--text, #ffffff);
+  font-size: 14px;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.live-demo:hover {
+  opacity: 0.6;
+}
+
+.details-button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text, #ffffff);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.details-button:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ========================================
+   3. PROJECT MODAL (AUTOCHAT STYLE)
+======================================== */
+.project-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(5, 7, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.project-detail {
+  position: relative;
+  width: 100%;
+  max-width: 1050px;
+  max-height: 90vh;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 32px;
+  padding: 36px;
+  border-radius: 20px;
+  background: rgba(15, 17, 26, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  overflow-y: auto;
+  text-align: left;
+}
+
+/* --- CỘT TRÁI (LEFT COLUMN) --- */
+.modal-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  width: 100%;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text-h, #ffffff);
+}
+
+.modal-desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text, #94a3b8);
+  opacity: 0.9;
+}
+
+/* KHUNG THỐNG KÊ (STATS CARD) */
+.modal-stats {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.stat-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-icon {
+  font-size: 18px;
+  color: #a78bfa;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-info strong {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.stat-info span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* NÚT TƯƠNG TÁC (ACTION BUTTONS) */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-demo {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.btn-demo:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.btn-github {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #c4b5fd;
+}
+
+.btn-github:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* THẺ CÔNG NGHỆ (TECHNOLOGIES USED) */
+.modal-tech {
+  width: 100%;
+}
+
+.modal-tech h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+.chip-icon {
+  font-size: 10px;
+  color: #a78bfa;
+}
+
+/* --- CỘT PHẢI (RIGHT COLUMN) --- */
+.modal-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.modal-image-card {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+}
+
+.modal-image-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* TÍNH NĂNG CHÍNH (KEY FEATURES) */
+.modal-features {
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.modal-features h3 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.modal-features ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-features li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+/* NÚT ĐÓNG (CLOSE BUTTON) */
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: rotate(90deg);
+}
+
+/* ========================================
+   4. RESPONSIVE MEDIA QUERIES
+======================================== */
+@media (max-width: 1000px) {
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 850px) {
+  .project-detail {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 28px 20px;
+  }
+
+  .modal-right {
+    order: -1;
+  }
+}
+
+@media (max-width: 650px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-select {
+    width: calc(100% - 30px);
+    justify-content: center;
+  }
+
+  .portfolio-select .box {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
