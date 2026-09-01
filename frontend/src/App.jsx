@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Intro from "./components/Intro/intro";
 import Navbar from "./components/Navbar/Navbar";
@@ -8,9 +9,11 @@ import Portfolio from "./sections/Portfolio/Portfolio";
 import Contact from "./sections/Contact/Contact";
 import Footer from "./components/Footer/Footer";
 
+import AdminProjects from "./components/Admin/Admin";
+
 import "./App.css";
 
-function App() {
+function MainPortfolio() {
   const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
@@ -42,6 +45,21 @@ function App() {
 
       <Footer />
     </>
+  );
+}
+
+// App quản lý việc chuyển trang qua URL
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Route trang chủ hiển thị toàn bộ Portfolio */}
+        <Route path="/" element={<MainPortfolio />} />
+
+        {/* Route trang Admin quản lý dự án */}
+        <Route path="/admin" element={<AdminProjects />} />
+      </Routes>
+    </Router>
   );
 }
 
