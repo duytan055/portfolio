@@ -1,22 +1,22 @@
 import { useState } from "react";
-import "./Admin.css"; // (Tùy chọn) file css trang trí bên dưới
+import "./Admin.css";
 
 function Admin() {
-  /*const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     title: "",
-    shortDesc: "",
-    fullDesc: "",
-    image: "",
-    githubLink: "",
-    demoLink: "",
+    short_description: "",
+    description: "",
+    image_url: "",
+    githun_url: "",
+    demo_url: "",
     technologies: "", // Nhập dạng: React, NodeJS, PostgreSQL
-    isFeatured: false,
+    is_featured: false,
   });
 
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
 
-  // Xử lý khi thay đổi ô input / textarea
+  // Xử lý khi thay đổi ô input
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -56,13 +56,13 @@ function Admin() {
         // Reset form sau khi thêm thành công
         setFormData({
           title: "",
-          shortDesc: "",
-          fullDesc: "",
-          image: "",
-          githubLink: "",
-          demoLink: "",
+          short_description: "",
+          description: "",
+          image_url: "",
+          githun_url: "",
+          demo_url: "",
           technologies: "",
-          isFeatured: false,
+          is_featured: false,
         });
       } else {
         setMessage({ type: "error", text: `❌ Lỗi: ${data.message}` });
@@ -73,7 +73,7 @@ function Admin() {
     } finally {
       setLoading(false);
     }
-  };*/
+  };
 
   return (
     <div className="admin-container">
@@ -100,8 +100,8 @@ function Admin() {
           <label>Mô tả ngắn (Hiển thị ngoài Card):</label>
           <input
             type="text"
-            name="shortDesc"
-            value={formData.shortDesc}
+            name="short_description"
+            value={formData.short_description}
             onChange={handleChange}
             placeholder="Mô tả tóm tắt 1-2 câu"
           />
@@ -110,9 +110,9 @@ function Admin() {
         <div className="form-group">
           <label>Mô tả chi tiết (Hiển thị trong Modal Popup) (*):</label>
           <textarea
-            name="fullDesc"
+            name="description"
             rows="5"
-            value={formData.fullDesc}
+            value={formData.description}
             onChange={handleChange}
             placeholder="Chi tiết về dự án, bài toán giải quyết..."
             required
@@ -124,8 +124,8 @@ function Admin() {
             <label>URL Hình ảnh:</label>
             <input
               type="text"
-              name="image"
-              value={formData.image}
+              name="image_url"
+              value={formData.image_url}
               onChange={handleChange}
               placeholder="https://example.com/image.jpg"
             />
@@ -148,8 +148,8 @@ function Admin() {
             <label>Link Github:</label>
             <input
               type="text"
-              name="githubLink"
-              value={formData.githubLink}
+              name="githun_url"
+              value={formData.githun_url}
               onChange={handleChange}
               placeholder="https://github.com/username/repo"
             />
@@ -159,8 +159,8 @@ function Admin() {
             <label>Link Live Demo:</label>
             <input
               type="text"
-              name="demoLink"
-              value={formData.demoLink}
+              name="demo_url"
+              value={formData.demo_url}
               onChange={handleChange}
               placeholder="https://mydemo.com"
             />
@@ -171,8 +171,8 @@ function Admin() {
           <label>
             <input
               type="checkbox"
-              name="isFeatured"
-              checked={formData.isFeatured}
+              name="is_featured"
+              checked={formData.is_featured}
               onChange={handleChange}
             />
             Đánh dấu là Dự án nổi bật (Featured)

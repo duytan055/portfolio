@@ -9,7 +9,9 @@ import Portfolio from "./sections/Portfolio/Portfolio";
 import Contact from "./sections/Contact/Contact";
 import Footer from "./components/Footer/Footer";
 
-import AdminProjects from "./components/Admin/Admin";
+import Login from "./pages/Login";
+import AdminProjects from "./pages/Admin/Admin";
+import AdminLayout from "./pages/Admin/adminLayout";
 
 import "./App.css";
 
@@ -56,8 +58,14 @@ function App() {
         {/* Route trang chủ hiển thị toàn bộ Portfolio */}
         <Route path="/" element={<MainPortfolio />} />
 
+        {/* Route trang Login quản lý đăng nhập */}
+        <Route path="/login" element={<Login />} />
+
         {/* Route trang Admin quản lý dự án */}
         <Route path="/admin" element={<AdminProjects />} />
+
+        {/* Route trang AdminLayout quản lý giao diện Admin */}
+        <Route path="/admin/*" element={<AdminLayout />} />
       </Routes>
     </Router>
   );
