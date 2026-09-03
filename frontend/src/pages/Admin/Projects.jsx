@@ -13,6 +13,8 @@ import { createPortal } from "react-dom";
 
 import "./Projects.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const INITIAL_FORM_STATE = {
   title: "",
   short_description: "",
@@ -41,7 +43,7 @@ function Projects() {
   // Lấy dữ liệu dự án từ API
   const fetchProjects = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/projects");
+      const response = await fetch(`${API_BASE_URL}/api/projects`);
       const data = await response.json();
       setProjects(data);
     } catch (error) {
@@ -113,8 +115,8 @@ function Projects() {
 
     const isEdit = Boolean(editingId);
     const url = isEdit
-      ? `http://localhost:5000/api/projects/${editingId}`
-      : "http://localhost:5000/api/projects";
+      ? `${API_BASE_URL}/api/projects/${editingId}`
+      : `${API_BASE_URL}/api/projects`;
     const method = isEdit ? "PUT" : "POST";
 
     try {
@@ -152,7 +154,7 @@ function Projects() {
     if (!window.confirm("Bạn có chắc chắn muốn xóa dự án này?")) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/projects/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
         method: "DELETE",
       });
 
