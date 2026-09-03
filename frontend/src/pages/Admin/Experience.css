@@ -1,0 +1,606 @@
+.experience-page {
+  width: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 25px;
+}
+
+.experience-header h1 {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.experience-header p {
+  margin: 6px 0 0;
+
+  color: #888;
+
+  font-size: 14px;
+}
+
+.add-experience-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 11px 18px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #8b5cf6;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.add-experience-btn:hover {
+  opacity: 0.9;
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+.experience-toolbar {
+  margin-bottom: 20px;
+}
+
+.experience-search {
+  width: 320px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 11px 14px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #2d2d35;
+  border-radius: 8px;
+
+  background: #18181f;
+}
+
+.experience-search svg {
+  color: #777;
+}
+
+.experience-search input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: white;
+
+  font-size: 14px;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.experience-table-container {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid #292930;
+  border-radius: 12px;
+
+  background: #15151b;
+}
+
+.experience-table {
+  width: 100%;
+  min-width: 1100px;
+
+  border-collapse: collapse;
+}
+
+.experience-table th {
+  padding: 16px;
+
+  text-align: left;
+
+  background: #1b1b22;
+
+  color: #888;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  border-bottom: 1px solid #292930;
+}
+
+.experience-table td {
+  padding: 16px;
+
+  border-bottom: 1px solid #25252c;
+
+  vertical-align: middle;
+}
+
+.experience-table tbody tr:hover {
+  background: #1a1a21;
+}
+
+/* =========================
+   COMPANY
+========================= */
+
+.experience-company {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 260px;
+}
+
+.company-image {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 8px;
+
+  background: #272331;
+  color: #a78bfa;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.experience-company h3 {
+  margin: 0 0 5px;
+
+  color: #eee;
+
+  font-size: 14px;
+}
+
+.experience-company p {
+  max-width: 240px;
+
+  margin: 0;
+
+  overflow: hidden;
+
+  color: #777;
+
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================
+   POSITION
+========================= */
+
+.position {
+  color: #ccc;
+
+  font-size: 13px;
+}
+
+/* =========================
+   DATE
+========================= */
+
+.experience-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #aaa;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+/* =========================
+   LOCATION
+========================= */
+
+.location {
+  color: #aaa;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.experience-status {
+  display: inline-block;
+
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.experience-status.current {
+  background: rgba(34, 197, 94, 0.12);
+
+  color: #4ade80;
+}
+
+.experience-status.ended {
+  background: rgba(156, 163, 175, 0.12);
+
+  color: #9ca3af;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.experience-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.experience-actions button {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 7px;
+
+  cursor: pointer;
+}
+
+.edit-btn {
+  background: #24242c;
+  color: #aaa;
+}
+
+.delete-btn {
+  background: #2a1b1f;
+  color: #ef4444;
+}
+
+.edit-btn:hover {
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #3a2025;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty-experience {
+  padding: 50px !important;
+
+  text-align: center;
+
+  color: #666;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.experience-modal-overlay {
+  position: fixed !important;
+
+  inset: 0 !important;
+
+  width: 100vw !important;
+  height: 100vh !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background: rgba(0, 0, 0, 0.72);
+
+  z-index: 99999 !important;
+}
+
+.experience-modal {
+  width: 650px !important;
+  max-width: calc(100vw - 40px);
+
+  max-height: calc(100vh - 40px);
+
+  overflow-y: auto;
+
+  padding: 28px !important;
+
+  box-sizing: border-box;
+
+  border: 1px solid #2d2d35;
+  border-radius: 14px;
+
+  background: #15151b;
+
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+}
+
+/* =========================
+   MODAL HEADER
+========================= */
+
+.experience-modal .modal-header {
+  display: flex !important;
+
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+
+  margin-bottom: 25px !important;
+}
+
+.modal-header h2 {
+  margin: 0;
+
+  color: #fff;
+
+  font-size: 22px;
+}
+
+.modal-header p {
+  margin: 6px 0 0;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+.modal-close {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 7px;
+
+  background: #24242c;
+  color: #aaa;
+
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  background: #30303a;
+
+  color: white;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.experience-modal .form-group {
+  width: 100%;
+
+  margin-bottom: 18px;
+}
+
+.experience-modal .form-group label {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+
+  text-align: left;
+
+  color: #ccc;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.experience-modal .form-group input,
+.experience-modal .form-group textarea {
+  width: 100% !important;
+
+  padding: 11px 13px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #2d2d35;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #1b1b22;
+  color: white;
+
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.experience-modal .form-group input:focus,
+.experience-modal .form-group textarea:focus {
+  border-color: #8b5cf6;
+}
+
+.experience-modal .form-group textarea {
+  resize: vertical;
+}
+
+/* =========================
+   DATE
+========================= */
+
+.date-row {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 15px;
+}
+
+.date-label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #666;
+
+  font-size: 11px;
+}
+
+.date-row input:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+/* =========================
+   CURRENT CHECKBOX
+========================= */
+
+.current-checkbox {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  margin: 2px 0 20px;
+
+  color: #ccc;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.current-checkbox input {
+  width: 16px;
+  height: 16px;
+
+  margin: 0;
+
+  accent-color: #8b5cf6;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.experience-modal .modal-footer {
+  display: flex !important;
+
+  justify-content: flex-end !important;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 28px;
+  padding-top: 20px;
+
+  border-top: 1px solid #292930;
+}
+
+.cancel-btn,
+.save-experience-btn {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 10px 16px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.cancel-btn {
+  border: 1px solid #303038;
+
+  background: transparent;
+
+  color: #aaa;
+}
+
+.cancel-btn:hover {
+  background: #222229;
+
+  color: white;
+}
+
+.save-experience-btn {
+  border: none;
+
+  background: #8b5cf6;
+
+  color: white;
+}
+
+.save-experience-btn:hover {
+  opacity: 0.9;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 600px) {
+  .experience-modal {
+    width: calc(100vw - 30px) !important;
+
+    max-width: none;
+
+    padding: 20px !important;
+  }
+
+  .date-row {
+    grid-template-columns: 1fr;
+  }
+}

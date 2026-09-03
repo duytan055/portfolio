@@ -1,0 +1,14 @@
+.admin-layout {
+  min-height: 100vh;
+  background: #0b0b0e;
+}
+
+.admin-content {
+  margin-left: 240px; /* bằng chiều rộng sidebar */
+  min-height: 100vh;
+
+  padding: 30px;
+  box-sizing: border-box;
+
+  width: calc(100% - 240px);
+}

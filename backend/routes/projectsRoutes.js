@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
         short_description,
         description,
         image_url,
-        githun_url,
+        github_url,
         demo_url,
         technologies,
         is_featured
@@ -31,73 +31,161 @@ router.get("/", async (req, res) => {
 
 // 2. POST: Thêm dự án mới
 router.post("/", async (req, res) => {
-  // Hứng dữ liệu chuẩn snake_case từ React Admin.jsx
-  const {
-    title,
-    short_description,
-    description,
-    image_url,
-    githun_url,
-    demo_url,
-    technologies,
-    is_featured,
-  } = req.body;
-
-  // Kiểm tra trường bắt buộc
-  if (!title || !description) {
-    return res
-      .status(400)
-      .json({ message: "❌ Thiếu tên dự án hoặc mô tả chi tiết!" });
-  }
-
-  // Tự động tạo slug
-  const slug = title
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9 -]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-
   try {
+    const {
+      title,
+      short_description,
+      description,
+      image_url,
+      technologies,
+      github_url,
+      demo_url,
+    } = req.body;
+
+    let techArray = [];
+    if (Array.isArray(technologies)) {
+      techArray = technologies;
+    } else if (typeof technologies === "string" && technologies.trim() !== "") {
+      techArray = technologies
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    const createSlug = (str) => {
+      return str
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[đĐ]/g, "d")
+        .replace(/([^0-9a-z-\s])/g, "")
+        .replace(/(\s+)/g, "-")
+        .replace(/^-+|-+$/g, "");
+    };
+
+    const slug = createSlug(title || "du-an-moi");
+
     const query = `
-      INSERT INTO projects (
-        title, 
-        short_description, 
-        description, 
-        image_url, 
-        githun_url, 
-        demo_url, 
-        technologies, 
-        is_featured, 
-        slug
-      ) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+      INSERT INTO projects (title, slug, short_description, description, image_url, technologies, github_url, demo_url)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *;
     `;
 
     const values = [
       title,
-      short_description || null,
-      description,
-      image_url || null,
-      githun_url || null,
-      demo_url || null,
-      technologies || [],
-      is_featured || false,
       slug,
+      short_description || "",
+      description || "",
+      image_url || "",
+      techArray,
+      github_url || "",
+      demo_url || "",
+    ];
+
+    const { rows } = await pool.query(query, values);
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error("🔥 Lỗi PostgreSQL:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// 3. PUT: Sửa dự án
+router.put("/:id", async (req, res) => {
+  // <-- SỬA LỖI 1: Đổi " :/id " thành " /:id "
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      short_description,
+      description,
+      image_url,
+      technologies,
+      github_url,
+      demo_url,
+    } = req.body;
+
+    let techArray = [];
+    if (Array.isArray(technologies)) {
+      techArray = technologies;
+    } else if (typeof technologies === "string" && technologies.trim() !== "") {
+      // <-- SỬA LỖI 2: Đổi techArray.split() thành technologies.split()
+      techArray = technologies
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    const createSlug = (str) => {
+      return str
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[đĐ]/g, "d")
+        .replace(/([^0-9a-z-\s])/g, "")
+        .replace(/(\s+)/g, "-")
+        .replace(/^-+|-+$/g, "");
+    };
+
+    const slug = createSlug(title || "du-an-moi");
+
+    const query = `
+      UPDATE projects SET 
+        title = $1,
+        slug = $2,
+        short_description = $3,
+        description = $4,
+        image_url = $5,
+        technologies = $6,
+        github_url = $7,
+        demo_url = $8
+      WHERE id = $9
+      RETURNING *;
+    `; // <-- SỬA LỖI 3 & 4: Sửa sai chính tả 'short_desciption' thành 'short_description' và thêm '*' sau RETURNING
+
+    const values = [
+      title,
+      slug,
+      short_description || "",
+      description || "",
+      image_url || "",
+      techArray,
+      github_url || "",
+      demo_url || "",
+      id,
     ];
 
     const { rows } = await pool.query(query, values);
 
-    res.status(201).json({
-      message: "✅ Dự án mới đã được thêm thành công!",
-      project: rows[0],
-    });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "No Find Project To Update !" });
+    }
+    res.json(rows[0]);
   } catch (err) {
-    console.error("🔥 Lỗi PostgreSQL:", err.message);
-    res.status(500).json({ message: `❌ Lỗi CSDL: ${err.message}` });
+    console.error("🔥 Lỗi UPDATE project:", err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
+// 4/ DELETE: Xóa dự án
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const query = `DELETE FROM projects WHERE id = $1 RETURNING*`;
+
+    const { rows } = await pool.query(query, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy dự án để xóa!" });
+    }
+    res.json({
+      message: " Xóa thành công !!!",
+      deletedProject: rows[0],
+    });
+  } catch (err) {
+    console.error("🔥 Lỗi DELETE project:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = router;

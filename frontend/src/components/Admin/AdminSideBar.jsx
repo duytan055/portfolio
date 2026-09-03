@@ -50,7 +50,7 @@ function AdminSidebar() {
           <span className="nav-icon">📜</span> Chứng chỉ
         </NavLink>
         <NavLink
-          to="/admin/skills"
+          to="/admin/toolsskills"
           className={({ isActive }) =>
             isActive ? "nav-item active" : "nav-item"
           }

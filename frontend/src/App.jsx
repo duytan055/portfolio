@@ -10,8 +10,11 @@ import Contact from "./sections/Contact/Contact";
 import Footer from "./components/Footer/Footer";
 
 import Login from "./pages/Login";
-import AdminProjects from "./pages/Admin/Admin";
-import AdminLayout from "./pages/Admin/adminLayout";
+import AdminLayout from "./pages/Admin/AdminLayout";
+import Projects from "./pages/Admin/Projects";
+import Experience from "./pages/Admin/Experience";
+import Certificates from "./pages/Admin/Certificate";
+import ToolsSkills from "./pages/Admin/ToolsSkills";
 
 import "./App.css";
 
@@ -55,20 +58,21 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Route trang chủ hiển thị toàn bộ Portfolio */}
+        {/* Portfolio */}
         <Route path="/" element={<MainPortfolio />} />
 
-        {/* Route trang Login quản lý đăng nhập */}
+        {/* Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* Route trang Admin quản lý dự án */}
-        <Route path="/admin" element={<AdminProjects />} />
-
-        {/* Route trang AdminLayout quản lý giao diện Admin */}
-        <Route path="/admin/*" element={<AdminLayout />} />
+        {/* Admin */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="projects" element={<Projects />} />
+          <Route path="experience" element={<Experience />} />
+          <Route path="certificates" element={<Certificates />} />
+          <Route path="toolsskills" element={<ToolsSkills />} />
+        </Route>
       </Routes>
     </Router>
   );
 }
-
 export default App;
