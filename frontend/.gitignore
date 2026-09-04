@@ -22,4 +22,10 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
+<<<<<<< HEAD
 *.sw?
+
+.env
+=======
+*.sw?
+>>>>>>> origin/main
