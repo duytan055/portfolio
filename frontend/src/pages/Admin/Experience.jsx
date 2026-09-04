@@ -1,9 +1,19 @@
 import { useState } from "react";
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import {
+  FaPlus,
+  FaSearch,
+  FaEdit,
+  FaTrash,
+  FaTimes,
+  FaSave,
+} from "react-icons/fa";
 
 import "./Experience.css";
+import { useEffect } from "react";
 
-const initialExperiences = [
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+/*const initialExperiences = [
   {
     id: 1,
     company: "ABC Technology",
@@ -26,24 +36,27 @@ const initialExperiences = [
     location: "Đà Nẵng, Việt Nam",
     image_url: "",
   },
-];
+]; */
+const INITIAL_FROM_STATE = {
+  company: "",
+  position: "",
+  description: "",
+  start_date: "",
+  end_date: "",
+  is_current: false,
+  location: "",
+  image_url: "",
+};
 
 function Experience() {
-  const [experiences, setExperiences] = useState(initialExperiences);
+  const [experiences, setExperiences] = useState([]);
 
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const [formData, setFormData] = useState({
-    company: "",
-    position: "",
-    location: "",
-    start_date: "",
-    end_date: "",
-    is_current: false,
-    description: "",
-    image_url: "",
-  });
+  const [formData, setFormData] = useState(INITIAL_FROM_STATE);
+
+  const [editingId, setEditingId] = useState(null);
 
   const filteredExperiences = experiences.filter(
     (experience) =>
@@ -70,43 +83,113 @@ function Experience() {
     }));
   };
 
-  const handleAddExperience = (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    fetchExperience();
+  });
 
-    const newExperience = {
-      id: Date.now(),
-      company: formData.company,
-      position: formData.position,
-      location: formData.location,
-      start_date: formData.start_date,
-      end_date: formData.is_current ? null : formData.end_date,
-      is_current: formData.is_current,
-      description: formData.description,
-      image_url: formData.image_url,
-    };
-
-    setExperiences((prev) => [newExperience, ...prev]);
-
-    setFormData({
-      company: "",
-      position: "",
-      location: "",
-      start_date: "",
-      end_date: "",
-      is_current: false,
-      description: "",
-      image_url: "",
-    });
-
-    setShowModal(false);
+  //Lấy dữ liệu exp
+  const fetchExperience = async () => {
+    try {
+      const respone = await fetch(`${API_BASE_URL}/api/experience`);
+      const data = await respone.json();
+      setExperiences(data);
+    } catch (error) {
+      console.error("Error fetching experience:", error);
+    }
+  };
+  //Mở modal thêm mới
+  const handleOpenModal = () => {
+    setEditingId(null);
+    setFormData(INITIAL_FROM_STATE);
+    setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  //Mở modal edit
+  const handleEdit = (experiences) => {
+    setEditingId(experiences.id);
+
+    setFormData({
+      company: experiences.company,
+      position: experiences.position,
+      location: experiences.location,
+      start_date: experiences.start_date || "",
+      end_date: experiences.end_date || "",
+      is_current: experiences.is_current,
+      description: experiences.description || "",
+      image_url: experiences.image_url,
+    });
+
+    setShowModal(true);
+  };
+
+  // Đóng modal và reset ô nhập
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingId(null);
+    setFormData(INITIAL_FROM_STATE);
+  };
+
+  //Thêm mới và cập nhật
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      ...formData,
+    };
+    const isEdit = Boolean(editingId);
+    const url = isEdit
+      ? `${API_BASE_URL}/api/experience/${editingId}`
+      : `${API_BASE_URL}/api/experience`;
+    const method = isEdit ? "PUT" : "POST";
+
+    try {
+      const respone = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!respone.ok) {
+        throw new Error(`${isEdit ? "Cập nhật" : "Thêm"} kinh nghiệm thất bại`);
+      }
+
+      const savedExp = await respone.json();
+
+      if (isEdit) {
+        setExperiences((prev) =>
+          prev.mao((item) => (item.id === editingId ? savedExp : item)),
+        );
+      } else {
+        setExperiences((prev) => [savedExp, ...prev]);
+      }
+    } catch (error) {
+      console.error("Error saving experience:", err);
+      alert(`Lỗi khi ${isEdit ? "cập nhật" : "thêm"} kinh nghiệm !`);
+    }
+  };
+
+  // Xóa exp
+  const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa kinh nghiệm này?")) {
       return;
     }
+    try {
+      const respone = await fetch(`${API_BASE_URL}/api/experience/${id}`, {
+        method: "DELETE",
+      });
 
-    setExperiences((prev) => prev.filter((experience) => experience.id !== id));
+      if (respone.ok) {
+        setExperiences((prev) =>
+          prev.filter((experiences) => experiences.id !== id),
+        );
+      } else {
+        alert("Xóa kinh nghiệm thất bại!");
+      }
+    } catch (error) {
+      console.error("Error deleting experience:", error);
+    }
   };
 
   const formatDate = (date) => {
@@ -424,8 +507,8 @@ function Experience() {
                 </button>
 
                 <button type="submit" className="save-experience-btn">
-                  <FaPlus />
-                  Thêm kinh nghiệm
+                  {editingId ? <FaSave /> : <FaPlus />}
+                  {editingId ? "Cập nhật" : "Thêm kinh nghiệm"}
                 </button>
               </div>
             </form>

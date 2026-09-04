@@ -92,7 +92,6 @@ router.post("/", async (req, res) => {
 
 // 3. PUT: Sửa dự án
 router.put("/:id", async (req, res) => {
-  // <-- SỬA LỖI 1: Đổi " :/id " thành " /:id "
   try {
     const { id } = req.params;
     const {
@@ -109,7 +108,6 @@ router.put("/:id", async (req, res) => {
     if (Array.isArray(technologies)) {
       techArray = technologies;
     } else if (typeof technologies === "string" && technologies.trim() !== "") {
-      // <-- SỬA LỖI 2: Đổi techArray.split() thành technologies.split()
       techArray = technologies
         .split(",")
         .map((item) => item.trim())
@@ -141,7 +139,7 @@ router.put("/:id", async (req, res) => {
         demo_url = $8
       WHERE id = $9
       RETURNING *;
-    `; // <-- SỬA LỖI 3 & 4: Sửa sai chính tả 'short_desciption' thành 'short_description' và thêm '*' sau RETURNING
+    `;
 
     const values = [
       title,
