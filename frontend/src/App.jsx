@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom"; // 1. Import Navigate
 
 import Intro from "./components/Intro/intro";
 import Navbar from "./components/Navbar/Navbar";
@@ -10,6 +15,7 @@ import Contact from "./sections/Contact/Contact";
 import Footer from "./components/Footer/Footer";
 
 import Login from "./pages/Login";
+import Dashboard from "./pages/Admin/Dashboard";
 import AdminLayout from "./pages/Admin/AdminLayout";
 import Projects from "./pages/Admin/Projects";
 import Experience from "./pages/Admin/Experience";
@@ -53,19 +59,20 @@ function MainPortfolio() {
   );
 }
 
-// App quản lý việc chuyển trang qua URL
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Portfolio */}
         <Route path="/" element={<MainPortfolio />} />
 
         {/* Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* Admin */}
+        {/* Admin Route */}
         <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="projects" element={<Projects />} />
           <Route path="experience" element={<Experience />} />
           <Route path="certificates" element={<Certificates />} />
@@ -75,4 +82,5 @@ function App() {
     </Router>
   );
 }
+
 export default App;

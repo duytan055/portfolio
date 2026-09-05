@@ -1,14 +1,15 @@
 .admin-layout {
+  display: flex;
   min-height: 100vh;
-  background: #0b0b0e;
+  width: 100vw;
+  background-color: #121215 !important;
 }
 
-.admin-content {
-  margin-left: 240px; /* bằng chiều rộng sidebar */
-  min-height: 100vh;
-
-  padding: 30px;
-  box-sizing: border-box;
-
-  width: calc(100% - 240px);
+.admin-main-content {
+  flex: 1;
+  color: white;
+  margin-left: 240px;
+  padding: 2rem;
+  min-width: 0;
+  background-color: #121215 !important;
 }

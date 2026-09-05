@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   FaPlus,
   FaSearch,
@@ -10,6 +10,7 @@ import {
   FaSave,
 } from "react-icons/fa";
 import { createPortal } from "react-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 import "./Projects.css";
 
@@ -32,10 +33,12 @@ function Projects() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const { token } = useContext(AuthContext);
+
   // Form State
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
-  // Load danh sách dự án khi vào trang
+  // Load danh sách dự án
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -71,7 +74,6 @@ function Projects() {
   const handleEdit = (project) => {
     setEditingId(project.id);
 
-    // Ép kiểu technologies về dạng chuỗi phẩy an toàn
     const techString = Array.isArray(project.technologies)
       ? project.technologies.join(", ")
       : project.technologies || "";
@@ -101,7 +103,6 @@ function Projects() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Chuẩn hóa technologies thành mảng
     const payload = {
       ...formData,
       technologies:
@@ -124,11 +125,16 @@ function Projects() {
         method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+          return;
+        }
         throw new Error(`${isEdit ? "Cập nhật" : "Thêm"} dự án thất bại`);
       }
 
@@ -156,12 +162,15 @@ function Projects() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/projects/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
         setProjects((prev) => prev.filter((project) => project.id !== id));
       } else {
-        alert("Xóa dự án thất bại!");
+        alert("Xóa dự án thất bại hoặc bạn không có quyền thực hiện!");
       }
     } catch (error) {
       console.error("Error deleting project:", error);

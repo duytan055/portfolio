@@ -1,83 +1,163 @@
-import { useState } from "react";
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
-
+import { useState, useEffect, useContext } from "react";
+import {
+  FaPlus,
+  FaSearch,
+  FaEdit,
+  FaSave,
+  FaTrash,
+  FaTimes,
+} from "react-icons/fa";
+import { AuthContext } from "../../context/AuthContext";
 import "./ToolsSkills.css";
 
-const initialSkills = [
-  {
-    id: 1,
-    name: "React",
-    description: "Xây dựng giao diện web bằng React.",
-    image_url: "",
-  },
-  {
-    id: 2,
-    name: "NodeJS",
-    description: "Phát triển Backend và REST API.",
-    image_url: "",
-  },
-  {
-    id: 3,
-    name: "PostgreSQL",
-    description: "Thiết kế và quản lý cơ sở dữ liệu.",
-    image_url: "",
-  },
-];
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+const INITIAL_FORM_STATE = {
+  name: "",
+  description: "",
+  image_url: "",
+};
 
 function ToolsSkills() {
-  const [skills, setSkills] = useState(initialSkills);
-
+  const [skills, setSkills] = useState([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    image_url: "",
+  // Lấy token
+  const { token } = useContext(AuthContext);
+
+  useEffect(() => {
+    fetchToolSkill();
+  }, []);
+
+  // 1 danh sách Kỹ năng
+  const fetchToolSkill = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/toolsskills`);
+      const data = await response.json();
+      setSkills(data);
+    } catch (err) {
+      console.error("Error fetching tools & skills:", err);
+    }
+  };
+
+  // 2 Lọc danh sách
+  const filteredSkills = skills.filter((skill) => {
+    const name = skill.name || "";
+    const description = skill.description || "";
+    const query = search.toLowerCase();
+
+    return (
+      name.toLowerCase().includes(query) ||
+      description.toLowerCase().includes(query)
+    );
   });
-
-  const filteredSkills = skills.filter(
-    (skill) =>
-      skill.name.toLowerCase().includes(search.toLowerCase()) ||
-      skill.description.toLowerCase().includes(search.toLowerCase()),
-  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleAddSkill = (e) => {
-    e.preventDefault();
-
-    const newSkill = {
-      id: Date.now(),
-      name: formData.name,
-      description: formData.description,
-      image_url: formData.image_url,
-    };
-
-    setSkills((prev) => [newSkill, ...prev]);
-
-    setFormData({
-      name: "",
-      description: "",
-      image_url: "",
-    });
-
-    setShowModal(false);
+  // Open Modal Add
+  const handleOpenModal = () => {
+    setEditingId(null);
+    setFormData(INITIAL_FORM_STATE);
+    setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  // Open Modal Edit
+  const handleEdit = (ts) => {
+    setEditingId(ts.id);
+    setFormData({
+      name: ts.name || "",
+      description: ts.description || "",
+      image_url: ts.image_url || "",
+    });
+    setShowModal(true);
+  };
+
+  // Close Modal And Reset Form
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingId(null);
+    setFormData(INITIAL_FORM_STATE);
+  };
+
+  // 3 Submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const isEdit = Boolean(editingId);
+    const url = isEdit
+      ? `${API_BASE_URL}/api/toolsskills/${editingId}`
+      : `${API_BASE_URL}/api/toolsskills`;
+    const method = isEdit ? "PUT" : "POST";
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+          return;
+        }
+        throw new Error(`${isEdit ? "Cập nhật" : "Thêm"} kỹ năng thất bại`);
+      }
+
+      const savedTs = await response.json();
+
+      if (isEdit) {
+        setSkills((prev) =>
+          prev.map((item) => (item.id === editingId ? savedTs : item)),
+        );
+      } else {
+        setSkills((prev) => [savedTs, ...prev]);
+      }
+
+      handleCloseModal();
+    } catch (err) {
+      console.error("Error saving Tool Skill:", err);
+      alert(`Lỗi khi ${isEdit ? "cập nhật" : "thêm"} kỹ năng !`);
+    }
+  };
+
+  // 4 Xóa
+  const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa kỹ năng này?")) {
       return;
     }
 
-    setSkills((prev) => prev.filter((skill) => skill.id !== id));
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/toolsskills/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setSkills((prev) => prev.filter((skill) => skill.id !== id));
+      } else {
+        if (response.status === 401 || response.status === 403) {
+          alert("Phiên đăng nhập đã hết hạn hoặc bạn không có quyền!");
+        } else {
+          alert("Xóa kỹ năng thất bại!");
+        }
+      }
+    } catch (err) {
+      console.error("Error deleting Tool Skill:", err);
+    }
   };
 
   return (
@@ -86,13 +166,11 @@ function ToolsSkills() {
       <div className="skill-header">
         <div>
           <h1>Kỹ năng</h1>
-
           <p>Quản lý các kỹ năng của bạn</p>
         </div>
 
-        <button className="add-skill-btn" onClick={() => setShowModal(true)}>
-          <FaPlus />
-          Thêm kỹ năng
+        <button className="add-skill-btn" onClick={handleOpenModal}>
+          <FaPlus /> Thêm kỹ năng
         </button>
       </div>
 
@@ -100,7 +178,6 @@ function ToolsSkills() {
       <div className="skill-toolbar">
         <div className="skill-search">
           <FaSearch />
-
           <input
             type="text"
             placeholder="Tìm kiếm kỹ năng..."
@@ -136,10 +213,9 @@ function ToolsSkills() {
                         {skill.image_url ? (
                           <img src={skill.image_url} alt={skill.name} />
                         ) : (
-                          skill.name.charAt(0)
+                          skill.name?.charAt(0) || "?"
                         )}
                       </div>
-
                       <span>{skill.name}</span>
                     </div>
                   </td>
@@ -151,7 +227,7 @@ function ToolsSkills() {
                     </span>
                   </td>
 
-                  {/* IMAGE */}
+                  {/* IMAGE STATUS */}
                   <td>
                     {skill.image_url ? (
                       <span className="image-status">Có hình ảnh</span>
@@ -160,10 +236,13 @@ function ToolsSkills() {
                     )}
                   </td>
 
-                  {/* ACTION */}
+                  {/* ACTIONS */}
                   <td>
                     <div className="skill-actions">
-                      <button className="edit-btn">
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEdit(skill)}
+                      >
                         <FaEdit />
                       </button>
 
@@ -188,35 +267,33 @@ function ToolsSkills() {
         </table>
       </div>
 
-      {/* ADD MODAL */}
+      {/* MODAL */}
       {showModal && (
-        <div
-          className="skill-modal-overlay"
-          onClick={() => setShowModal(false)}
-        >
+        <div className="skill-modal-overlay" onClick={handleCloseModal}>
           <div className="skill-modal" onClick={(e) => e.stopPropagation()}>
-            {/* MODAL HEADER */}
             <div className="modal-header">
               <div>
-                <h2>Thêm kỹ năng</h2>
-
-                <p>Thêm một kỹ năng mới cho portfolio</p>
+                <h2>{editingId ? "Cập nhật kỹ năng" : "Thêm kỹ năng"}</h2>
+                <p>
+                  {editingId
+                    ? "Chỉnh sửa thông tin kỹ năng"
+                    : "Thêm một kỹ năng mới cho portfolio"}
+                </p>
               </div>
 
               <button
                 className="modal-close"
                 type="button"
-                onClick={() => setShowModal(false)}
+                onClick={handleCloseModal}
               >
                 <FaTimes />
               </button>
             </div>
 
-            <form onSubmit={handleAddSkill}>
+            <form onSubmit={handleSubmit}>
               {/* NAME */}
               <div className="form-group">
                 <label>Tên kỹ năng</label>
-
                 <input
                   type="text"
                   name="name"
@@ -229,10 +306,9 @@ function ToolsSkills() {
 
               {/* IMAGE */}
               <div className="form-group">
-                <label>Hình ảnh</label>
-
+                <label>Hình ảnh (URL)</label>
                 <input
-                  type="url"
+                  type="text"
                   name="image_url"
                   value={formData.image_url}
                   onChange={handleChange}
@@ -243,7 +319,6 @@ function ToolsSkills() {
               {/* DESCRIPTION */}
               <div className="form-group">
                 <label>Mô tả</label>
-
                 <textarea
                   name="description"
                   value={formData.description}
@@ -258,14 +333,14 @@ function ToolsSkills() {
                 <button
                   type="button"
                   className="cancel-btn"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleCloseModal}
                 >
                   Hủy
                 </button>
 
                 <button type="submit" className="save-skill-btn">
-                  <FaPlus />
-                  Thêm kỹ năng
+                  {editingId ? <FaSave /> : <FaPlus />}
+                  {editingId ? " Cập nhật" : " Thêm kỹ năng"}
                 </button>
               </div>
             </form>

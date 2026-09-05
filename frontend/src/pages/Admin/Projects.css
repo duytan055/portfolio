@@ -17,6 +17,7 @@
 
 .projects-header h1 {
   margin: 0;
+  color: #fff;
   font-size: 28px;
   font-weight: 700;
 }
@@ -31,18 +32,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-
   padding: 11px 18px;
-
   border: none;
   border-radius: 8px;
-
   background: #8b5cf6;
   color: white;
-
   font-size: 14px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
@@ -62,15 +58,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
-
   width: 320px;
-
   padding: 11px 14px;
-
   border: 1px solid #2d2d35;
   border-radius: 8px;
-
   background: #18181f;
+  box-sizing: border-box;
 }
 
 .search-box svg {
@@ -79,62 +72,95 @@
 
 .search-box input {
   width: 100%;
-
   border: none;
   outline: none;
-
   background: transparent;
   color: white;
-
   font-size: 14px;
 }
 
 /* =========================
-   TABLE
+   TABLE (SỬA CHUẨN DÀNH CHO 6 CỘT)
 ========================= */
 
 .projects-table-container {
   width: 100%;
   overflow-x: auto;
-
   border: 1px solid #292930;
   border-radius: 12px;
-
   background: #15151b;
 }
 
 .projects-table {
   width: 100%;
   min-width: 900px;
-
   border-collapse: collapse;
+  table-layout: fixed; /* Khóa khung cố định chia tỷ lệ cột chuẩn */
+}
+
+.projects-table th,
+.projects-table td {
+  padding: 16px;
+  border-bottom: 1px solid #25252c;
+  vertical-align: middle;
+  box-sizing: border-box;
+  text-align: left;
 }
 
 .projects-table th {
-  padding: 16px;
-
-  text-align: left;
-
   background: #1b1b22;
-
   color: #888;
-
   font-size: 12px;
   font-weight: 600;
-
-  border-bottom: 1px solid #292930;
-}
-
-.projects-table td {
-  padding: 16px;
-
-  border-bottom: 1px solid #25252c;
-
-  vertical-align: middle;
+  white-space: nowrap;
 }
 
 .projects-table tbody tr:hover {
   background: #1a1a21;
+}
+
+/* === CẤU HÌNH ĐỘ RỘNG & CĂN LỀ TỪNG CỘT (6 CỘT) === */
+
+/* Cột 1: STT (#) */
+.projects-table th:nth-child(1),
+.projects-table td:nth-child(1) {
+  width: 50px;
+  text-align: center !important;
+}
+
+/* Cột 2: Dự án */
+.projects-table th:nth-child(2),
+.projects-table td:nth-child(2) {
+  width: 30%;
+  text-align: left !important;
+}
+
+/* Cột 3: Công nghệ */
+.projects-table th:nth-child(3),
+.projects-table td:nth-child(3) {
+  width: 28%;
+  text-align: left !important;
+}
+
+/* Cột 4: Trạng thái */
+.projects-table th:nth-child(4),
+.projects-table td:nth-child(4) {
+  width: 120px;
+  text-align: center !important;
+}
+
+/* Cột 5: Link */
+.projects-table th:nth-child(5),
+.projects-table td:nth-child(5) {
+  width: 100px;
+  text-align: center !important;
+}
+
+/* Cột 6: Thao tác */
+.projects-table th:nth-child(6),
+.projects-table td:nth-child(6) {
+  width: 100px;
+  text-align: center !important;
 }
 
 /* =========================
@@ -145,42 +171,47 @@
   display: flex;
   align-items: center;
   gap: 12px;
-
-  min-width: 280px;
+  min-width: 0;
 }
 
 .project-image {
-  width: 48px;
-  height: 48px;
-
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
+  overflow: hidden;
   border-radius: 8px;
-
   background: #272331;
-
   color: #a78bfa;
-
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
 }
 
-.project-info h3 {
-  margin: 0 0 5px;
+.project-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
+.project-info h3 {
+  margin: 0 0 4px;
+  color: #eee;
   font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .project-info p {
   margin: 0;
-
   color: #777;
-
   font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* =========================
@@ -190,21 +221,17 @@
 .technology-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-
-  max-width: 220px;
+  gap: 6px;
+  max-width: 100%;
 }
 
 .technology-list span {
-  padding: 4px 7px;
-
+  padding: 4px 8px;
   border-radius: 5px;
-
   background: #25252e;
-
   color: #aaa;
-
   font-size: 11px;
+  white-space: nowrap;
 }
 
 /* =========================
@@ -213,13 +240,11 @@
 
 .status {
   display: inline-block;
-
-  padding: 5px 10px;
-
+  padding: 5px 12px;
   border-radius: 20px;
-
   font-size: 11px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .status.active {
@@ -238,27 +263,24 @@
 
 .project-links {
   display: flex;
+  justify-content: center;
   gap: 8px;
 }
 
 .project-links a {
   width: 32px;
   height: 32px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 7px;
-
   background: #24242c;
-
   color: #aaa;
-
   text-decoration: none;
 }
 
 .project-links a:hover {
+  background: #30303a;
   color: white;
 }
 
@@ -268,20 +290,18 @@
 
 .project-actions {
   display: flex;
+  justify-content: center;
   gap: 8px;
 }
 
 .project-actions button {
   width: 32px;
   height: 32px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: none;
   border-radius: 7px;
-
   cursor: pointer;
 }
 
@@ -296,6 +316,7 @@
 }
 
 .edit-btn:hover {
+  background: #30303a;
   color: white;
 }
 
@@ -309,9 +330,7 @@
 
 .empty-projects {
   padding: 50px !important;
-
-  text-align: center;
-
+  text-align: center !important;
   color: #666;
 }
 
@@ -319,30 +338,17 @@
    MODAL OVERLAY
 ========================= */
 
-/* =========================
-   MODAL OVERLAY
-========================= */
-
 .project-modal-overlay {
   position: fixed !important;
-
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-
+  inset: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-
   padding: 20px;
   box-sizing: border-box;
-
   background: rgba(0, 0, 0, 0.72);
-
   z-index: 99999 !important;
 }
 
@@ -352,76 +358,56 @@
 
 .project-modal {
   position: relative !important;
-
   display: block !important;
-
   width: 650px !important;
   max-width: calc(100vw - 40px);
-
   max-height: calc(100vh - 40px);
-
   overflow-y: auto;
-
   margin: 0 !important;
   padding: 28px !important;
-
   box-sizing: border-box;
-
   border: 1px solid #2d2d35;
   border-radius: 14px;
-
   background: #15151b;
-
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
 }
 
 /* =========================
-   HEADER
+   MODAL HEADER
 ========================= */
 
 .project-modal .modal-header {
   width: 100%;
-
   display: flex !important;
   justify-content: space-between !important;
   align-items: flex-start !important;
-
   margin: 0 0 25px !important;
 }
 
 .project-modal .modal-header h2 {
   margin: 0;
-
   color: #fff;
-
   font-size: 22px;
   font-weight: 700;
 }
 
 .project-modal .modal-header p {
   margin: 6px 0 0;
-
   color: #777;
-
   font-size: 13px;
 }
 
 .modal-close {
   width: 34px;
   height: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   border: none;
   border-radius: 7px;
-
   background: #24242c;
   color: #aaa;
-
   cursor: pointer;
 }
 
@@ -445,11 +431,8 @@
 
 .form-group label {
   display: block;
-
   margin-bottom: 8px;
-
   color: #ccc;
-
   font-size: 13px;
   font-weight: 600;
 }
@@ -457,19 +440,13 @@
 .form-group input,
 .form-group textarea {
   width: 100% !important;
-
   padding: 11px 13px;
-
   box-sizing: border-box;
-
   border: 1px solid #2d2d35;
   border-radius: 8px;
-
   outline: none;
-
   background: #1b1b22;
   color: #fff;
-
   font-family: inherit;
   font-size: 13px;
 }
@@ -485,11 +462,8 @@
 
 .form-group small {
   display: block;
-
   margin-top: 6px;
-
   color: #666;
-
   font-size: 11px;
 }
 
@@ -499,11 +473,8 @@
 
 .project-modal .form-row {
   width: 100%;
-
   display: grid !important;
-
   grid-template-columns: 1fr 1fr !important;
-
   gap: 15px;
 }
 
@@ -514,22 +485,16 @@
 .status-checkbox {
   display: flex !important;
   align-items: center;
-
   gap: 9px;
-
   color: #ccc;
-
   font-size: 13px;
-
   cursor: pointer;
 }
 
 .status-checkbox input {
   width: 16px;
   height: 16px;
-
   margin: 0;
-
   accent-color: #8b5cf6;
 }
 
@@ -541,12 +506,9 @@
   display: flex !important;
   justify-content: flex-end !important;
   align-items: center;
-
   gap: 10px;
-
   margin-top: 28px;
   padding-top: 20px;
-
   border-top: 1px solid #292930;
 }
 
@@ -555,22 +517,16 @@
   display: flex !important;
   align-items: center;
   justify-content: center;
-
   gap: 7px;
-
   padding: 10px 16px;
-
   border-radius: 8px;
-
   font-size: 13px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
 .cancel-btn {
   border: 1px solid #303038;
-
   background: transparent;
   color: #aaa;
 }
@@ -582,7 +538,6 @@
 
 .save-project-btn {
   border: none;
-
   background: #8b5cf6;
   color: #fff;
 }
