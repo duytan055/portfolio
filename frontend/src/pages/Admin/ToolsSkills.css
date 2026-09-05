@@ -12,24 +12,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   margin-bottom: 25px;
 }
 
 .skill-header h1 {
   margin: 0;
-
   color: #fff;
-
   font-size: 28px;
   font-weight: 700;
 }
 
 .skill-header p {
   margin: 6px 0 0;
-
   color: #888;
-
   font-size: 14px;
 }
 
@@ -37,18 +32,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-
   padding: 11px 18px;
-
   border: none;
   border-radius: 8px;
-
   background: #8b5cf6;
   color: #fff;
-
   font-size: 14px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
@@ -66,18 +56,13 @@
 
 .skill-search {
   width: 320px;
-
   display: flex;
   align-items: center;
   gap: 10px;
-
   padding: 11px 14px;
-
   border: 1px solid #2d2d35;
   border-radius: 8px;
-
   background: #18181f;
-
   box-sizing: border-box;
 }
 
@@ -87,94 +72,112 @@
 
 .skill-search input {
   width: 100%;
-
   border: none;
   outline: none;
-
   background: transparent;
   color: #fff;
-
   font-size: 14px;
 }
 
 /* =========================
-   TABLE
+   TABLE (SỬA CHUẨN 5 CỘT)
 ========================= */
 
 .skill-table-container {
   width: 100%;
-
   overflow-x: auto;
-
   border: 1px solid #292930;
   border-radius: 12px;
-
   background: #15151b;
 }
 
 .skill-table {
   width: 100%;
   min-width: 850px;
-
   border-collapse: collapse;
+  table-layout: fixed; /* Bắt buộc định dạng khung cố định */
+}
+
+.skill-table th,
+.skill-table td {
+  padding: 16px;
+  border-bottom: 1px solid #25252c;
+  vertical-align: middle;
+  box-sizing: border-box;
+  text-align: left;
 }
 
 .skill-table th {
-  padding: 16px;
-
-  text-align: left;
-
   background: #1b1b22;
-
   color: #888;
-
   font-size: 12px;
   font-weight: 600;
-
-  border-bottom: 1px solid #292930;
-}
-
-.skill-table td {
-  padding: 16px;
-
-  border-bottom: 1px solid #25252c;
-
-  vertical-align: middle;
+  white-space: nowrap;
 }
 
 .skill-table tbody tr:hover {
   background: #1a1a21;
 }
 
+/* === CẤU HÌNH ĐỘ RỘNG & CĂN LỀ TỪNG CỘT (5 CỘT) === */
+
+/* Cột 1: STT (#) */
+.skill-table th:nth-child(1),
+.skill-table td:nth-child(1) {
+  width: 50px;
+  text-align: center !important;
+}
+
+/* Cột 2: Kỹ năng */
+.skill-table th:nth-child(2),
+.skill-table td:nth-child(2) {
+  width: 30%;
+  text-align: left !important;
+}
+
+/* Cột 3: Mô tả */
+.skill-table th:nth-child(3),
+.skill-table td:nth-child(3) {
+  width: 40%;
+  text-align: left !important;
+}
+
+/* Cột 4: Hình ảnh (Badge trạng thái) */
+.skill-table th:nth-child(4),
+.skill-table td:nth-child(4) {
+  width: 130px;
+  text-align: center !important;
+}
+
+/* Cột 5: Thao tác */
+.skill-table th:nth-child(5),
+.skill-table td:nth-child(5) {
+  width: 100px;
+  text-align: center !important;
+}
+
 /* =========================
-   SKILL INFO
+   SKILL INFO & DESCRIPTION
 ========================= */
 
 .skill-info {
   display: flex;
   align-items: center;
   gap: 12px;
-
-  min-width: 180px;
+  min-width: 0; /* Cho phép co giãn văn bản không bị đè */
 }
 
 .skill-image {
   width: 42px;
   height: 42px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
   overflow: hidden;
-
   border-radius: 8px;
-
   background: #272331;
   color: #a78bfa;
-
   font-size: 16px;
   font-weight: 700;
 }
@@ -182,49 +185,41 @@
 .skill-image img {
   width: 100%;
   height: 100%;
-
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .skill-info span {
   color: #eee;
-
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
-/* =========================
-   DESCRIPTION
-========================= */
 
 .skill-description {
   display: block;
-
-  max-width: 350px;
-
-  overflow: hidden;
-
+  width: 100%;
+  margin: 0;
   color: #999;
-
   font-size: 13px;
-
-  text-overflow: ellipsis;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* =========================
-   IMAGE STATUS
+   IMAGE STATUS BADGES
 ========================= */
 
 .image-status,
 .no-image {
   display: inline-block;
-
-  padding: 6px 9px;
-
+  padding: 6px 12px;
   border-radius: 6px;
-
   font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .image-status {
@@ -243,20 +238,18 @@
 
 .skill-actions {
   display: flex;
+  justify-content: center;
   gap: 8px;
 }
 
 .skill-actions button {
   width: 32px;
   height: 32px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: none;
   border-radius: 7px;
-
   cursor: pointer;
 }
 
@@ -284,9 +277,7 @@
 
 .empty-skill {
   padding: 50px !important;
-
-  text-align: center;
-
+  text-align: center !important;
   color: #666;
 }
 
@@ -297,40 +288,27 @@
 .skill-modal-overlay {
   position: fixed !important;
   inset: 0 !important;
-
   width: 100vw !important;
   height: 100vh !important;
-
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-
   padding: 20px;
-
   box-sizing: border-box;
-
   background: rgba(0, 0, 0, 0.72);
-
   z-index: 99999 !important;
 }
 
 .skill-modal {
   width: 600px;
   max-width: calc(100vw - 40px);
-
   max-height: calc(100vh - 40px);
-
   overflow-y: auto;
-
   padding: 28px;
-
   box-sizing: border-box;
-
   border: 1px solid #2d2d35;
   border-radius: 14px;
-
   background: #15151b;
-
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
 }
 
@@ -340,43 +318,33 @@
 
 .skill-modal .modal-header {
   display: flex;
-
   justify-content: space-between;
   align-items: flex-start;
-
   margin-bottom: 25px;
 }
 
 .skill-modal .modal-header h2 {
   margin: 0;
-
   color: #fff;
-
   font-size: 22px;
 }
 
 .skill-modal .modal-header p {
   margin: 6px 0 0;
-
   color: #777;
-
   font-size: 13px;
 }
 
 .modal-close {
   width: 34px;
   height: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: none;
   border-radius: 7px;
-
   background: #24242c;
   color: #aaa;
-
   cursor: pointer;
 }
 
@@ -390,21 +358,15 @@
 
 .skill-modal .form-group {
   width: 100%;
-
   margin-bottom: 18px;
 }
 
 .skill-modal .form-group label {
   display: block;
-
   width: 100%;
-
   margin-bottom: 8px;
-
   text-align: left !important;
-
   color: #ccc;
-
   font-size: 13px;
   font-weight: 600;
 }
@@ -412,19 +374,13 @@
 .skill-modal input,
 .skill-modal textarea {
   width: 100%;
-
   padding: 11px 13px;
-
   box-sizing: border-box;
-
   border: 1px solid #2d2d35;
   border-radius: 8px;
-
   outline: none;
-
   background: #1b1b22;
   color: #fff;
-
   font-family: inherit;
   font-size: 13px;
 }
@@ -444,47 +400,40 @@
 
 .skill-modal .modal-footer {
   display: flex;
-
   justify-content: flex-end;
   align-items: center;
-
   gap: 10px;
-
   margin-top: 28px;
   padding-top: 20px;
-
   border-top: 1px solid #292930;
 }
 
 .cancel-btn,
 .save-skill-btn {
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   gap: 7px;
-
   padding: 10px 16px;
-
   border-radius: 8px;
-
   font-size: 13px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
 .cancel-btn {
   border: 1px solid #303038;
-
   background: transparent;
   color: #aaa;
 }
 
+.cancel-btn:hover {
+  background: #222229;
+  color: #fff;
+}
+
 .save-skill-btn {
   border: none;
-
   background: #8b5cf6;
   color: #fff;
 }

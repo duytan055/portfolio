@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   FaPlus,
   FaSearch,
@@ -7,37 +7,12 @@ import {
   FaTimes,
   FaSave,
 } from "react-icons/fa";
-
+import { AuthContext } from "../../context/AuthContext";
 import "./Experience.css";
-import { useEffect } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-/*const initialExperiences = [
-  {
-    id: 1,
-    company: "ABC Technology",
-    position: "Backend Developer Intern",
-    description: "Phát triển API và làm việc với cơ sở dữ liệu.",
-    start_date: "2026-06-01",
-    end_date: null,
-    is_current: true,
-    location: "Quy Nhơn, Việt Nam",
-    image_url: "",
-  },
-  {
-    id: 2,
-    company: "XYZ Software",
-    position: "Web Developer",
-    description: "Xây dựng và bảo trì các ứng dụng web.",
-    start_date: "2025-06-01",
-    end_date: "2026-05-30",
-    is_current: false,
-    location: "Đà Nẵng, Việt Nam",
-    image_url: "",
-  },
-]; */
-const INITIAL_FROM_STATE = {
+const INITIAL_FORM_STATE = {
   company: "",
   position: "",
   description: "",
@@ -50,23 +25,43 @@ const INITIAL_FROM_STATE = {
 
 function Experience() {
   const [experiences, setExperiences] = useState([]);
-
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-
-  const [formData, setFormData] = useState(INITIAL_FROM_STATE);
-
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [editingId, setEditingId] = useState(null);
 
-  const filteredExperiences = experiences.filter(
-    (experience) =>
-      experience.company.toLowerCase().includes(search.toLowerCase()) ||
-      experience.position.toLowerCase().includes(search.toLowerCase()),
-  );
+  //  Lấy token xác
+  const { token } = useContext(AuthContext);
+
+  useEffect(() => {
+    fetchExperience();
+  }, []);
+
+  // Lấy dữ liệu kinh nghiệm
+  const fetchExperience = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/experience`);
+      const data = await response.json();
+      setExperiences(data);
+    } catch (error) {
+      console.error("Error fetching experience:", error);
+    }
+  };
+
+  // Filter an toàn
+  const filteredExperiences = experiences.filter((exp) => {
+    const companyName = exp.company || "";
+    const positionName = exp.position || "";
+    const query = search.toLowerCase();
+
+    return (
+      companyName.toLowerCase().includes(query) ||
+      positionName.toLowerCase().includes(query)
+    );
+  });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -75,7 +70,6 @@ function Experience() {
 
   const handleCurrentChange = (e) => {
     const checked = e.target.checked;
-
     setFormData((prev) => ({
       ...prev,
       is_current: checked,
@@ -83,59 +77,39 @@ function Experience() {
     }));
   };
 
-  useEffect(() => {
-    fetchExperience();
-  });
-
-  //Lấy dữ liệu exp
-  const fetchExperience = async () => {
-    try {
-      const respone = await fetch(`${API_BASE_URL}/api/experience`);
-      const data = await respone.json();
-      setExperiences(data);
-    } catch (error) {
-      console.error("Error fetching experience:", error);
-    }
-  };
-  //Mở modal thêm mới
+  // Mở modal thêm mới
   const handleOpenModal = () => {
     setEditingId(null);
-    setFormData(INITIAL_FROM_STATE);
+    setFormData(INITIAL_FORM_STATE);
     setShowModal(true);
   };
 
-  //Mở modal edit
-  const handleEdit = (experiences) => {
-    setEditingId(experiences.id);
-
+  // Mở modal edit
+  const handleEdit = (exp) => {
+    setEditingId(exp.id);
     setFormData({
-      company: experiences.company,
-      position: experiences.position,
-      location: experiences.location,
-      start_date: experiences.start_date || "",
-      end_date: experiences.end_date || "",
-      is_current: experiences.is_current,
-      description: experiences.description || "",
-      image_url: experiences.image_url,
+      company: exp.company || "",
+      position: exp.position || "",
+      location: exp.location || "",
+      start_date: exp.start_date || "",
+      end_date: exp.end_date || "",
+      is_current: exp.is_current || false,
+      description: exp.description || "",
+      image_url: exp.image_url || "",
     });
-
     setShowModal(true);
   };
 
-  // Đóng modal và reset ô nhập
+  // Đóng modal và reset form
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingId(null);
-    setFormData(INITIAL_FROM_STATE);
+    setFormData(INITIAL_FORM_STATE);
   };
 
-  //Thêm mới và cập nhật
+  // Thêm mới và cập nhật
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const payload = {
-      ...formData,
-    };
     const isEdit = Boolean(editingId);
     const url = isEdit
       ? `${API_BASE_URL}/api/experience/${editingId}`
@@ -143,49 +117,57 @@ function Experience() {
     const method = isEdit ? "PUT" : "POST";
 
     try {
-      const respone = await fetch(url, {
+      const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formData),
       });
 
-      if (!respone.ok) {
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+          return;
+        }
         throw new Error(`${isEdit ? "Cập nhật" : "Thêm"} kinh nghiệm thất bại`);
       }
 
-      const savedExp = await respone.json();
+      const savedExp = await response.json();
 
       if (isEdit) {
         setExperiences((prev) =>
-          prev.mao((item) => (item.id === editingId ? savedExp : item)),
+          prev.map((item) => (item.id === editingId ? savedExp : item)),
         );
       } else {
         setExperiences((prev) => [savedExp, ...prev]);
       }
-    } catch (error) {
+
+      handleCloseModal();
+    } catch (err) {
       console.error("Error saving experience:", err);
       alert(`Lỗi khi ${isEdit ? "cập nhật" : "thêm"} kinh nghiệm !`);
     }
   };
 
-  // Xóa exp
+  // Xóa kinh nghiệm
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa kinh nghiệm này?")) {
       return;
     }
     try {
-      const respone = await fetch(`${API_BASE_URL}/api/experience/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/experience/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (respone.ok) {
-        setExperiences((prev) =>
-          prev.filter((experiences) => experiences.id !== id),
-        );
+      if (response.ok) {
+        setExperiences((prev) => prev.filter((item) => item.id !== id));
       } else {
-        alert("Xóa kinh nghiệm thất bại!");
+        alert("Xóa kinh nghiệm thất bại hoặc bạn không có quyền!");
       }
     } catch (error) {
       console.error("Error deleting experience:", error);
@@ -194,41 +176,26 @@ function Experience() {
 
   const formatDate = (date) => {
     if (!date) return "";
-
     const [year, month] = date.split("-");
-
     return `${month}/${year}`;
   };
 
   return (
     <div className="experience-page">
-      {/* =========================
-          HEADER
-      ========================= */}
-
       <div className="experience-header">
         <div>
           <h1>Kinh nghiệm</h1>
           <p>Quản lý quá trình học tập và làm việc</p>
         </div>
 
-        <button
-          className="add-experience-btn"
-          onClick={() => setShowModal(true)}
-        >
-          <FaPlus />
-          Thêm kinh nghiệm
+        <button className="add-experience-btn" onClick={handleOpenModal}>
+          <FaPlus /> Thêm kinh nghiệm
         </button>
       </div>
-
-      {/* =========================
-          SEARCH
-      ========================= */}
 
       <div className="experience-toolbar">
         <div className="experience-search">
           <FaSearch />
-
           <input
             type="text"
             placeholder="Tìm kiếm kinh nghiệm..."
@@ -237,10 +204,6 @@ function Experience() {
           />
         </div>
       </div>
-
-      {/* =========================
-          TABLE
-      ========================= */}
 
       <div className="experience-table-container">
         <table className="experience-table">
@@ -255,41 +218,31 @@ function Experience() {
               <th>Thao tác</th>
             </tr>
           </thead>
-
           <tbody>
             {filteredExperiences.length > 0 ? (
               filteredExperiences.map((experience, index) => (
                 <tr key={experience.id}>
-                  {/* STT */}
                   <td>{index + 1}</td>
-
-                  {/* COMPANY */}
                   <td>
                     <div className="experience-company">
                       <div className="company-image">
-                        {experience.company.charAt(0)}
+                        {experience.company
+                          ? experience.company.charAt(0)
+                          : "?"}
                       </div>
-
                       <div>
                         <h3>{experience.company}</h3>
-
                         <p>{experience.description}</p>
                       </div>
                     </div>
                   </td>
-
-                  {/* POSITION */}
                   <td>
                     <span className="position">{experience.position}</span>
                   </td>
-
-                  {/* DATE */}
                   <td>
                     <div className="experience-date">
                       <span>{formatDate(experience.start_date)}</span>
-
                       <span>→</span>
-
                       <span>
                         {experience.is_current
                           ? "Hiện tại"
@@ -297,13 +250,9 @@ function Experience() {
                       </span>
                     </div>
                   </td>
-
-                  {/* LOCATION */}
                   <td>
                     <span className="location">{experience.location}</span>
                   </td>
-
-                  {/* STATUS */}
                   <td>
                     <span
                       className={
@@ -315,14 +264,14 @@ function Experience() {
                       {experience.is_current ? "Đang làm" : "Đã kết thúc"}
                     </span>
                   </td>
-
-                  {/* ACTIONS */}
                   <td>
                     <div className="experience-actions">
-                      <button className="edit-btn">
+                      <button
+                        className="edit-btn"
+                        onClick={() => handleEdit(experience)}
+                      >
                         <FaEdit />
                       </button>
-
                       <button
                         className="delete-btn"
                         onClick={() => handleDelete(experience.id)}
@@ -344,45 +293,35 @@ function Experience() {
         </table>
       </div>
 
-      {/* =========================
-          ADD MODAL
-      ========================= */}
-
       {showModal && (
-        <div
-          className="experience-modal-overlay"
-          onClick={() => setShowModal(false)}
-        >
+        <div className="experience-modal-overlay" onClick={handleCloseModal}>
           <div
             className="experience-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* MODAL HEADER */}
-
             <div className="modal-header">
               <div>
-                <h2>Thêm kinh nghiệm</h2>
-
-                <p>Thêm một kinh nghiệm làm việc mới</p>
+                <h2>
+                  {editingId ? "Cập nhật kinh nghiệm" : "Thêm kinh nghiệm"}
+                </h2>
+                <p>
+                  {editingId
+                    ? "Chỉnh sửa thông tin quá trình làm việc"
+                    : "Thêm một kinh nghiệm làm việc mới"}
+                </p>
               </div>
-
               <button
                 type="button"
                 className="modal-close"
-                onClick={() => setShowModal(false)}
+                onClick={handleCloseModal}
               >
                 <FaTimes />
               </button>
             </div>
 
-            {/* FORM */}
-
-            <form onSubmit={handleAddExperience}>
-              {/* COMPANY */}
-
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Công ty / Tổ chức</label>
-
                 <input
                   type="text"
                   name="company"
@@ -393,11 +332,8 @@ function Experience() {
                 />
               </div>
 
-              {/* POSITION */}
-
               <div className="form-group">
                 <label>Vị trí</label>
-
                 <input
                   type="text"
                   name="position"
@@ -408,11 +344,8 @@ function Experience() {
                 />
               </div>
 
-              {/* LOCATION */}
-
               <div className="form-group">
                 <label>Địa điểm</label>
-
                 <input
                   type="text"
                   name="location"
@@ -422,15 +355,11 @@ function Experience() {
                 />
               </div>
 
-              {/* DATE */}
-
               <div className="form-group">
                 <label>Thời gian</label>
-
                 <div className="date-row">
                   <div>
                     <span className="date-label">Ngày bắt đầu</span>
-
                     <input
                       type="date"
                       name="start_date"
@@ -439,10 +368,8 @@ function Experience() {
                       required
                     />
                   </div>
-
                   <div>
                     <span className="date-label">Ngày kết thúc</span>
-
                     <input
                       type="date"
                       name="end_date"
@@ -454,8 +381,6 @@ function Experience() {
                 </div>
               </div>
 
-              {/* CURRENT */}
-
               <label className="current-checkbox">
                 <input
                   type="checkbox"
@@ -463,15 +388,11 @@ function Experience() {
                   checked={formData.is_current}
                   onChange={handleCurrentChange}
                 />
-
                 <span>Tôi đang làm việc tại đây</span>
               </label>
 
-              {/* DESCRIPTION */}
-
               <div className="form-group">
                 <label>Mô tả</label>
-
                 <textarea
                   name="description"
                   value={formData.description}
@@ -481,11 +402,8 @@ function Experience() {
                 />
               </div>
 
-              {/* IMAGE */}
-
               <div className="form-group">
                 <label>Hình ảnh / Logo công ty</label>
-
                 <input
                   type="text"
                   name="image_url"
@@ -495,20 +413,17 @@ function Experience() {
                 />
               </div>
 
-              {/* FOOTER */}
-
               <div className="modal-footer">
                 <button
                   type="button"
                   className="cancel-btn"
-                  onClick={() => setShowModal(false)}
+                  onClick={handleCloseModal}
                 >
                   Hủy
                 </button>
-
                 <button type="submit" className="save-experience-btn">
                   {editingId ? <FaSave /> : <FaPlus />}
-                  {editingId ? "Cập nhật" : "Thêm kinh nghiệm"}
+                  {editingId ? " Cập nhật" : " Thêm kinh nghiệm"}
                 </button>
               </div>
             </form>

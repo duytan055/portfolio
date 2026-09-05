@@ -1,12 +1,20 @@
+import { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 import "./AdminSidebar.css";
 
 function AdminSidebar() {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    navigate("/login");
+    if (logout) {
+      logout();
+    } else {
+      localStorage.removeItem("adminToken");
+    }
+
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -25,6 +33,7 @@ function AdminSidebar() {
         >
           <span className="nav-icon">📊</span> Tổng quan
         </NavLink>
+
         <NavLink
           to="/admin/projects"
           className={({ isActive }) =>
@@ -33,6 +42,7 @@ function AdminSidebar() {
         >
           <span className="nav-icon">🚀</span> Dự án
         </NavLink>
+
         <NavLink
           to="/admin/experience"
           className={({ isActive }) =>
@@ -41,6 +51,7 @@ function AdminSidebar() {
         >
           <span className="nav-icon">💼</span> Kinh nghiệm
         </NavLink>
+
         <NavLink
           to="/admin/certificates"
           className={({ isActive }) =>
@@ -49,6 +60,7 @@ function AdminSidebar() {
         >
           <span className="nav-icon">📜</span> Chứng chỉ
         </NavLink>
+
         <NavLink
           to="/admin/toolsskills"
           className={({ isActive }) =>
