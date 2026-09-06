@@ -9,7 +9,9 @@ export const AuthProvider = ({ children }) => {
 
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("adminUser");
+
     if (!savedUser || savedUser === "undefined") return null;
+
     try {
       return JSON.parse(savedUser);
     } catch (e) {
@@ -17,9 +19,12 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
+  const isAuthenticated = !!token;
+
   const login = (newToken, userData) => {
     setToken(newToken);
     setUser(userData);
+
     localStorage.setItem("adminToken", newToken);
     localStorage.setItem("adminUser", JSON.stringify(userData));
   };
@@ -27,12 +32,21 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
+
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        user,
+        isAuthenticated,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

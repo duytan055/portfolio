@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
-} from "react-router-dom"; // 1. Import Navigate
+} from "react-router-dom";
 
 import Intro from "./components/Intro/intro";
 import Navbar from "./components/Navbar/Navbar";
@@ -21,6 +21,8 @@ import Projects from "./pages/Admin/Projects";
 import Experience from "./pages/Admin/Experience";
 import Certificates from "./pages/Admin/Certificate";
 import ToolsSkills from "./pages/Admin/ToolsSkills";
+
+import ProtectedRoute from "./components/Admin/ProtectedRouter";
 
 import "./App.css";
 
@@ -69,14 +71,15 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Admin Route */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="projects" element={<Projects />} />
-          <Route path="experience" element={<Experience />} />
-          <Route path="certificates" element={<Certificates />} />
-          <Route path="toolsskills" element={<ToolsSkills />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="experience" element={<Experience />} />
+            <Route path="certificates" element={<Certificates />} />
+            <Route path="toolsskills" element={<ToolsSkills />} />
+          </Route>
         </Route>
       </Routes>
     </Router>

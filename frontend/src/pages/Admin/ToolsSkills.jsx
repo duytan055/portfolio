@@ -25,14 +25,16 @@ function ToolsSkills() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
-  // Lấy token
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
     fetchToolSkill();
   }, []);
 
-  // 1 danh sách Kỹ năng
+  // Lấy danh sách Kỹ năng
   const fetchToolSkill = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/toolsskills`);
@@ -43,7 +45,7 @@ function ToolsSkills() {
     }
   };
 
-  // 2 Lọc danh sách
+  // Lọc danh sách
   const filteredSkills = skills.filter((skill) => {
     const name = skill.name || "";
     const description = skill.description || "";
@@ -63,14 +65,25 @@ function ToolsSkills() {
     }));
   };
 
-  // Open Modal Add
+  // Chọn file ảnh từ máy
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Mở Modal Thêm mới
   const handleOpenModal = () => {
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
+    setImageFile(null);
+    setImagePreview("");
     setShowModal(true);
   };
 
-  // Open Modal Edit
+  // Mở Modal Sửa
   const handleEdit = (ts) => {
     setEditingId(ts.id);
     setFormData({
@@ -78,17 +91,30 @@ function ToolsSkills() {
       description: ts.description || "",
       image_url: ts.image_url || "",
     });
+    setImageFile(null);
+
+    if (ts.image_url) {
+      const fullUrl = ts.image_url.startsWith("http")
+        ? ts.image_url
+        : `${API_BASE_URL}${ts.image_url}`;
+      setImagePreview(fullUrl);
+    } else {
+      setImagePreview("");
+    }
+
     setShowModal(true);
   };
 
-  // Close Modal And Reset Form
+  // Đóng Modal & Reset Form
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
+    setImageFile(null);
+    setImagePreview("");
   };
 
-  // 3 Submit
+  // Gửi dữ liệu
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isEdit = Boolean(editingId);
@@ -97,14 +123,23 @@ function ToolsSkills() {
       : `${API_BASE_URL}/api/toolsskills`;
     const method = isEdit ? "PUT" : "POST";
 
+    // Đóng gói dữ liệu dạng FormData
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("description", formData.description || "");
+    data.append("image_url", formData.image_url || "");
+
+    if (imageFile) {
+      data.append("image", imageFile);
+    }
+
     try {
       const response = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: data,
       });
 
       if (!response.ok) {
@@ -132,7 +167,7 @@ function ToolsSkills() {
     }
   };
 
-  // 4 Xóa
+  // Xóa kỹ năng
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa kỹ năng này?")) {
       return;
@@ -211,7 +246,14 @@ function ToolsSkills() {
                     <div className="skill-info">
                       <div className="skill-image">
                         {skill.image_url ? (
-                          <img src={skill.image_url} alt={skill.name} />
+                          <img
+                            src={
+                              skill.image_url.startsWith("http")
+                                ? skill.image_url
+                                : `${API_BASE_URL}${skill.image_url}`
+                            }
+                            alt={skill.name}
+                          />
                         ) : (
                           skill.name?.charAt(0) || "?"
                         )}
@@ -304,16 +346,33 @@ function ToolsSkills() {
                 />
               </div>
 
-              {/* IMAGE */}
+              {/* IMAGE FILE INPUT */}
               <div className="form-group">
-                <label>Hình ảnh (URL)</label>
+                <label>Tải ảnh kỹ năng từ máy tính</label>
                 <input
-                  type="text"
-                  name="image_url"
-                  value={formData.image_url}
-                  onChange={handleChange}
-                  placeholder="https://example.com/react.png"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
                 />
+                {imagePreview && (
+                  <div style={{ marginTop: "10px" }}>
+                    <p style={{ fontSize: "12px", color: "#666" }}>
+                      Ảnh hiển thị hiện tại:
+                    </p>
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        objectFit: "contain",
+                        borderRadius: "6px",
+                        border: "1px solid #ddd",
+                        padding: "4px",
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* DESCRIPTION */}

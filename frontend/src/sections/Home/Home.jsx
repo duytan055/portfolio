@@ -51,7 +51,6 @@ function Home() {
           setTitleIndex((prev) => prev - 1);
         }, 120);
       } else {
-        // Xóa hết → nghỉ 0.5 giây
         timeout = setTimeout(() => {
           setIsDeleting(false);
         }, 500);
@@ -61,7 +60,6 @@ function Home() {
     return () => clearTimeout(timeout);
   }, [canType, titleIndex, isDeleting]);
 
-  // Tách description thành từng chữ với animation delay
   const descriptionLetters = descriptionText.split("").map((char, index) => (
     <span
       key={index}
@@ -76,19 +74,14 @@ function Home() {
     <div className="home" id="home">
       <div className="home__content">
         <h1 className="home__title">
-          {displayedTitle.startsWith("Software") && (
+          <span className="title-software">{displayedTitle.slice(0, 8)}</span>
+
+          {displayedTitle.length > 8 && (
             <>
-              <span className="title-software">Software</span>
-              {displayedTitle.length > 8 && " "}
-              {displayedTitle.length > 9 && (
-                <span className="title-engineer">
-                  {displayedTitle.slice(9)}
-                </span>
-              )}
+              {" "}
+              <span className="title-engineer">{displayedTitle.slice(9)}</span>
             </>
           )}
-
-          {!displayedTitle.startsWith("Software") && displayedTitle}
 
           <span className="typing-cursor">|</span>
         </h1>

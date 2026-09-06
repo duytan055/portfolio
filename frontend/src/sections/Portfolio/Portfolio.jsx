@@ -52,7 +52,7 @@ function Projects() {
 
   return (
     <div className="portfolio" id="portfolio">
-      <h1>Portfolio</h1>
+      <h1>Portfolio Showcase</h1>
 
       {/* TABS SELECT */}
       <div className="portfolio-select">

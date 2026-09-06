@@ -175,17 +175,17 @@ const Dashboard = () => {
               <PlusCircle size={18} />
               <span>Thêm dự án mới</span>
             </Link>
-            <Link to="/admin/skills" className="action-item">
-              <PlusCircle size={18} />
-              <span>Thêm kỹ năng mới</span>
-            </Link>
-            <Link to="/admin/experiences" className="action-item">
+            <Link to="/admin/experience" className="action-item">
               <PlusCircle size={18} />
               <span>Thêm kinh nghiệm mới</span>
             </Link>
             <Link to="/admin/certificates" className="action-item">
               <PlusCircle size={18} />
               <span>Thêm chứng chỉ mới</span>
+            </Link>
+            <Link to="/admin/toolsskills" className="action-item">
+              <PlusCircle size={18} />
+              <span>Thêm kỹ năng mới</span>
             </Link>
           </div>
         </div>

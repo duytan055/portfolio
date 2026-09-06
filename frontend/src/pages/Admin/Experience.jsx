@@ -7,6 +7,7 @@ import {
   FaTimes,
   FaSave,
 } from "react-icons/fa";
+import { createPortal } from "react-dom";
 import { AuthContext } from "../../context/AuthContext";
 import "./Experience.css";
 
@@ -20,7 +21,18 @@ const INITIAL_FORM_STATE = {
   end_date: "",
   is_current: false,
   location: "",
-  image_url: "",
+};
+
+const formatInputDate = (dateString) => {
+  if (!dateString) return "";
+  return dateString.split("T")[0];
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const cleanDate = dateString.split("T")[0];
+  const [year, month] = cleanDate.split("-");
+  return month && year ? `${month}/${year}` : dateString;
 };
 
 function Experience() {
@@ -30,17 +42,19 @@ function Experience() {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [editingId, setEditingId] = useState(null);
 
-  //  Lấy token xác
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
     fetchExperience();
   }, []);
 
-  // Lấy dữ liệu kinh nghiệm
   const fetchExperience = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/experience`);
+      if (!response.ok) throw new Error("Lỗi tải danh sách kinh nghiệm");
       const data = await response.json();
       setExperiences(data);
     } catch (error) {
@@ -48,7 +62,6 @@ function Experience() {
     }
   };
 
-  // Filter an toàn
   const filteredExperiences = experiences.filter((exp) => {
     const companyName = exp.company || "";
     const positionName = exp.position || "";
@@ -77,37 +90,55 @@ function Experience() {
     }));
   };
 
-  // Mở modal thêm mới
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleOpenModal = () => {
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
+    setImageFile(null);
+    setImagePreview("");
     setShowModal(true);
   };
 
-  // Mở modal edit
   const handleEdit = (exp) => {
     setEditingId(exp.id);
     setFormData({
       company: exp.company || "",
       position: exp.position || "",
       location: exp.location || "",
-      start_date: exp.start_date || "",
-      end_date: exp.end_date || "",
+      start_date: formatInputDate(exp.start_date),
+      end_date: formatInputDate(exp.end_date),
       is_current: exp.is_current || false,
       description: exp.description || "",
-      image_url: exp.image_url || "",
     });
+    setImageFile(null);
+
+    if (exp.image_url) {
+      const fullUrl = exp.image_url.startsWith("http")
+        ? exp.image_url
+        : `${API_BASE_URL}${exp.image_url}`;
+      setImagePreview(fullUrl);
+    } else {
+      setImagePreview("");
+    }
+
     setShowModal(true);
   };
 
-  // Đóng modal và reset form
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
+    setImageFile(null);
+    setImagePreview("");
   };
 
-  // Thêm mới và cập nhật
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isEdit = Boolean(editingId);
@@ -116,14 +147,26 @@ function Experience() {
       : `${API_BASE_URL}/api/experience`;
     const method = isEdit ? "PUT" : "POST";
 
+    const data = new FormData();
+    data.append("company", formData.company);
+    data.append("position", formData.position);
+    data.append("location", formData.location);
+    data.append("start_date", formData.start_date);
+    data.append("end_date", formData.end_date);
+    data.append("is_current", formData.is_current);
+    data.append("description", formData.description);
+
+    if (imageFile) {
+      data.append("image", imageFile);
+    }
+
     try {
       const response = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: data,
       });
 
       if (!response.ok) {
@@ -147,11 +190,10 @@ function Experience() {
       handleCloseModal();
     } catch (err) {
       console.error("Error saving experience:", err);
-      alert(`Lỗi khi ${isEdit ? "cập nhật" : "thêm"} kinh nghiệm !`);
+      alert(`Lỗi khi ${isEdit ? "cập nhật" : "thêm"} kinh nghiệm!`);
     }
   };
 
-  // Xóa kinh nghiệm
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa kinh nghiệm này?")) {
       return;
@@ -174,14 +216,9 @@ function Experience() {
     }
   };
 
-  const formatDate = (date) => {
-    if (!date) return "";
-    const [year, month] = date.split("-");
-    return `${month}/${year}`;
-  };
-
   return (
     <div className="experience-page">
+      {/* HEADER */}
       <div className="experience-header">
         <div>
           <h1>Kinh nghiệm</h1>
@@ -193,6 +230,7 @@ function Experience() {
         </button>
       </div>
 
+      {/* SEARCH TOOLBAR */}
       <div className="experience-toolbar">
         <div className="experience-search">
           <FaSearch />
@@ -205,6 +243,7 @@ function Experience() {
         </div>
       </div>
 
+      {/* TABLE */}
       <div className="experience-table-container">
         <table className="experience-table">
           <thead>
@@ -221,14 +260,31 @@ function Experience() {
           <tbody>
             {filteredExperiences.length > 0 ? (
               filteredExperiences.map((experience, index) => (
-                <tr key={experience.id}>
+                <tr key={experience.id || index}>
                   <td>{index + 1}</td>
                   <td>
                     <div className="experience-company">
                       <div className="company-image">
-                        {experience.company
-                          ? experience.company.charAt(0)
-                          : "?"}
+                        {experience.image_url ? (
+                          <img
+                            src={
+                              experience.image_url.startsWith("http")
+                                ? experience.image_url
+                                : `${API_BASE_URL}${experience.image_url}`
+                            }
+                            alt={experience.company}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              borderRadius: "6px",
+                            }}
+                          />
+                        ) : experience.company ? (
+                          experience.company.charAt(0).toUpperCase()
+                        ) : (
+                          "?"
+                        )}
                       </div>
                       <div>
                         <h3>{experience.company}</h3>
@@ -293,143 +349,163 @@ function Experience() {
         </table>
       </div>
 
-      {showModal && (
-        <div className="experience-modal-overlay" onClick={handleCloseModal}>
-          <div
-            className="experience-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-header">
-              <div>
-                <h2>
-                  {editingId ? "Cập nhật kinh nghiệm" : "Thêm kinh nghiệm"}
-                </h2>
-                <p>
-                  {editingId
-                    ? "Chỉnh sửa thông tin quá trình làm việc"
-                    : "Thêm một kinh nghiệm làm việc mới"}
-                </p>
-              </div>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={handleCloseModal}
-              >
-                <FaTimes />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Công ty / Tổ chức</label>
-                <input
-                  type="text"
-                  name="company"
-                  value={formData.company}
-                  onChange={handleChange}
-                  placeholder="Nhập tên công ty..."
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Vị trí</label>
-                <input
-                  type="text"
-                  name="position"
-                  value={formData.position}
-                  onChange={handleChange}
-                  placeholder="Ví dụ: Backend Developer Intern"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Địa điểm</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="Ví dụ: Quy Nhơn, Việt Nam"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Thời gian</label>
-                <div className="date-row">
-                  <div>
-                    <span className="date-label">Ngày bắt đầu</span>
-                    <input
-                      type="date"
-                      name="start_date"
-                      value={formData.start_date}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <span className="date-label">Ngày kết thúc</span>
-                    <input
-                      type="date"
-                      name="end_date"
-                      value={formData.end_date}
-                      onChange={handleChange}
-                      disabled={formData.is_current}
-                    />
-                  </div>
+      {/* MODAL */}
+      {showModal &&
+        createPortal(
+          <div className="experience-modal-overlay" onClick={handleCloseModal}>
+            <div
+              className="experience-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <div>
+                  <h2>
+                    {editingId ? "Cập nhật kinh nghiệm" : "Thêm kinh nghiệm"}
+                  </h2>
+                  <p>
+                    {editingId
+                      ? "Chỉnh sửa thông tin quá trình làm việc"
+                      : "Thêm một kinh nghiệm làm việc mới"}
+                  </p>
                 </div>
-              </div>
-
-              <label className="current-checkbox">
-                <input
-                  type="checkbox"
-                  name="is_current"
-                  checked={formData.is_current}
-                  onChange={handleCurrentChange}
-                />
-                <span>Tôi đang làm việc tại đây</span>
-              </label>
-
-              <div className="form-group">
-                <label>Mô tả</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Mô tả công việc, trách nhiệm..."
-                  rows="5"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Hình ảnh / Logo công ty</label>
-                <input
-                  type="text"
-                  name="image_url"
-                  value={formData.image_url}
-                  onChange={handleChange}
-                  placeholder="https://example.com/logo.png"
-                />
-              </div>
-
-              <div className="modal-footer">
                 <button
                   type="button"
-                  className="cancel-btn"
+                  className="modal-close"
                   onClick={handleCloseModal}
                 >
-                  Hủy
-                </button>
-                <button type="submit" className="save-experience-btn">
-                  {editingId ? <FaSave /> : <FaPlus />}
-                  {editingId ? " Cập nhật" : " Thêm kinh nghiệm"}
+                  <FaTimes />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Công ty / Tổ chức</label>
+                  <input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    placeholder="Nhập tên công ty..."
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Vị trí</label>
+                  <input
+                    type="text"
+                    name="position"
+                    value={formData.position}
+                    onChange={handleChange}
+                    placeholder="Ví dụ: Backend Developer Intern"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Địa điểm</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    placeholder="Ví dụ: Quy Nhơn, Việt Nam"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Thời gian</label>
+                  <div className="date-row">
+                    <div>
+                      <span className="date-label">Ngày bắt đầu</span>
+                      <input
+                        type="date"
+                        name="start_date"
+                        value={formData.start_date}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <span className="date-label">Ngày kết thúc</span>
+                      <input
+                        type="date"
+                        name="end_date"
+                        value={formData.end_date}
+                        onChange={handleChange}
+                        disabled={formData.is_current}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <label className="current-checkbox">
+                  <input
+                    type="checkbox"
+                    name="is_current"
+                    checked={formData.is_current}
+                    onChange={handleCurrentChange}
+                  />
+                  <span>Tôi đang làm việc tại đây</span>
+                </label>
+
+                <div className="form-group">
+                  <label>Mô tả</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Mô tả công việc, trách nhiệm..."
+                    rows="5"
+                  />
+                </div>
+
+                {/* Chọn file từ máy tính */}
+                <div className="form-group">
+                  <label>Tải ảnh / Logo công ty từ máy tính</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                  {imagePreview && (
+                    <div style={{ marginTop: "10px" }}>
+                      <p style={{ fontSize: "12px", color: "#666" }}>
+                        Ảnh hiển thị hiện tại:
+                      </p>
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          objectFit: "cover",
+                          borderRadius: "6px",
+                          border: "1px solid #ddd",
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={handleCloseModal}
+                  >
+                    Hủy
+                  </button>
+                  <button type="submit" className="save-experience-btn">
+                    {editingId ? <FaSave /> : <FaPlus />}
+                    {editingId ? " Cập nhật" : " Thêm kinh nghiệm"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
