@@ -33,6 +33,9 @@ function Projects() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const [imageFile, setImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
   const { token } = useContext(AuthContext);
 
   // Form State
@@ -47,6 +50,7 @@ function Projects() {
   const fetchProjects = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/projects`);
+      if (!response.ok) throw new Error("Lỗi tải danh sách dự án");
       const data = await response.json();
       setProjects(data);
     } catch (error) {
@@ -54,7 +58,7 @@ function Projects() {
     }
   };
 
-  // Xử lý thay đổi ô nhập dữ liệu
+  // Xử lý thay đổi các ô nhập liệu chữ & checkbox
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -63,10 +67,24 @@ function Projects() {
     }));
   };
 
+  // Xử lý khi chọn file ảnh từ máy
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   // Mở Modal Thêm mới
   const handleOpenAddModal = () => {
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
+    setImageFile(null);
+    setPreviewUrl("");
     setShowModal(true);
   };
 
@@ -89,30 +107,49 @@ function Projects() {
       status: project.status ?? true,
     });
 
+    setImageFile(null);
+    if (project.image_url) {
+      const fullImgUrl = project.image_url.startsWith("http")
+        ? project.image_url
+        : `${API_BASE_URL}${project.image_url}`;
+      setPreviewUrl(fullImgUrl);
+    } else {
+      setPreviewUrl("");
+    }
+
     setShowModal(true);
   };
 
   // Đóng Modal và Reset Form
   const handleCloseModal = () => {
+    if (previewUrl && previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
     setShowModal(false);
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
+    setImageFile(null);
+    setPreviewUrl("");
   };
 
   // Form Xử lý Thêm mới & Cập nhật
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      ...formData,
-      technologies:
-        typeof formData.technologies === "string"
-          ? formData.technologies
-              .split(",")
-              .map((item) => item.trim())
-              .filter(Boolean)
-          : formData.technologies,
-    };
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("short_description", formData.short_description || "");
+    data.append("description", formData.description || "");
+    data.append("technologies", formData.technologies || "");
+    data.append("github_url", formData.github_url || "");
+    data.append("demo_url", formData.demo_url || "");
+    data.append("status", formData.status);
+
+    if (imageFile) {
+      data.append("image", imageFile);
+    } else {
+      data.append("image_url", formData.image_url || "");
+    }
 
     const isEdit = Boolean(editingId);
     const url = isEdit
@@ -124,10 +161,9 @@ function Projects() {
       const response = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: data,
       });
 
       if (!response.ok) {
@@ -232,7 +268,26 @@ function Projects() {
                   <td>
                     <div className="project-info">
                       <div className="project-image">
-                        {project.title ? project.title.charAt(0) : "P"}
+                        {project.image_url ? (
+                          <img
+                            src={
+                              project.image_url.startsWith("http")
+                                ? project.image_url
+                                : `${API_BASE_URL}${project.image_url}`
+                            }
+                            alt={project.title}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              borderRadius: "6px",
+                            }}
+                          />
+                        ) : project.title ? (
+                          project.title.charAt(0).toUpperCase()
+                        ) : (
+                          "P"
+                        )}
                       </div>
                       <div>
                         <h3>{project.title}</h3>
@@ -248,19 +303,24 @@ function Projects() {
                       {(Array.isArray(project.technologies)
                         ? project.technologies
                         : (project.technologies || "").split(",")
-                      ).map((tech, idx) => (
-                        <span key={idx}>{tech.trim()}</span>
-                      ))}
+                      )
+                        .map((tech) => tech.trim())
+                        .filter(Boolean)
+                        .map((tech, idx) => (
+                          <span key={idx}>{tech}</span>
+                        ))}
                     </div>
                   </td>
 
                   <td>
                     <span
                       className={
-                        project.status ? "status active" : "status hidden"
+                        project.status !== false
+                          ? "status active"
+                          : "status hidden"
                       }
                     >
-                      {project.status ? "Active" : "Hidden"}
+                      {project.status !== false ? "Active" : "Hidden"}
                     </span>
                   </td>
 
@@ -376,15 +436,29 @@ function Projects() {
                   />
                 </div>
 
+                {/* Chọn ảnh từ máy tính */}
                 <div className="form-group">
-                  <label>Hình ảnh</label>
+                  <label>Hình ảnh dự án</label>
                   <input
-                    type="text"
-                    name="image_url"
-                    value={formData.image_url}
-                    onChange={handleChange}
-                    placeholder="https://example.com/image.jpg"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
                   />
+                  {previewUrl && (
+                    <div style={{ marginTop: "10px" }}>
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        style={{
+                          width: "120px",
+                          height: "80px",
+                          objectFit: "cover",
+                          borderRadius: "6px",
+                          border: "1px solid #334155",
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">

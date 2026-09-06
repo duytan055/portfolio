@@ -16,12 +16,27 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const INITIAL_FORM_STATE = {
   title: "",
   description: "",
-  image_url: "",
   issued_by: "",
   issue_date: "",
   expiration_date: "",
   credential_id: "",
   credential_url: "",
+};
+
+const formatInputDate = (dateString) => {
+  if (!dateString) return "";
+  return dateString.split("T")[0];
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return "Không giới hạn";
+  const cleanDate = dateStr.split("T")[0];
+  const parts = cleanDate.split("-");
+
+  if (parts.length < 3) return dateStr;
+  const [year, month, day] = parts;
+
+  return `${day}/${month}/${year}`;
 };
 
 function Certificate() {
@@ -31,14 +46,15 @@ function Certificate() {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [editingId, setEditingId] = useState(null);
 
-  // Lấy token
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
     fetchCertificate();
   }, []);
 
-  // Lấy danh sách chứng chỉ
   const fetchCertificate = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/certificates`);
@@ -49,7 +65,6 @@ function Certificate() {
     }
   };
 
-  // Safe filter
   const filteredCertificates = certificates.filter((cer) => {
     const title = cer.title || "";
     const issuedBy = cer.issued_by || "";
@@ -69,38 +84,55 @@ function Certificate() {
     }));
   };
 
-  // Open Modal Add
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleOpenModal = () => {
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
+    setImageFile(null);
+    setImagePreview("");
     setShowModal(true);
   };
 
-  // Open Modal Edit
   const handleEdit = (cer) => {
     setEditingId(cer.id);
     setFormData({
       title: cer.title || "",
       description: cer.description || "",
-      image_url: cer.image_url || "",
       issued_by: cer.issued_by || "",
-      issue_date: cer.issue_date || "",
-      expiration_date: cer.expiration_date || "",
+      issue_date: formatInputDate(cer.issue_date),
+      expiration_date: formatInputDate(cer.expiration_date),
       credential_id: cer.credential_id || "",
       credential_url: cer.credential_url || "",
     });
+    setImageFile(null);
+
+    if (cer.image_url) {
+      const fullUrl = cer.image_url.startsWith("http")
+        ? cer.image_url
+        : `${API_BASE_URL}${cer.image_url}`;
+      setImagePreview(fullUrl);
+    } else {
+      setImagePreview("");
+    }
 
     setShowModal(true);
   };
 
-  // Close Modal And Reset Form
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
+    setImageFile(null);
+    setImagePreview("");
   };
 
-  // Thêm mới và cập nhật chứng chỉ
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isEdit = Boolean(editingId);
@@ -109,14 +141,26 @@ function Certificate() {
       : `${API_BASE_URL}/api/certificates`;
     const method = isEdit ? "PUT" : "POST";
 
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("issued_by", formData.issued_by);
+    data.append("issue_date", formData.issue_date);
+    data.append("expiration_date", formData.expiration_date || "");
+    data.append("credential_id", formData.credential_id || "");
+    data.append("credential_url", formData.credential_url || "");
+    data.append("description", formData.description || "");
+
+    if (imageFile) {
+      data.append("image", imageFile);
+    }
+
     try {
       const response = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: data,
       });
 
       if (!response.ok) {
@@ -140,11 +184,10 @@ function Certificate() {
       handleCloseModal();
     } catch (err) {
       console.error("Error saving certificate:", err);
-      alert(`Lỗi khi ${isEdit ? "cập nhật" : "thêm"} chứng chỉ !`);
+      alert(`Lỗi khi ${isEdit ? "cập nhật" : "thêm"} chứng chỉ!`);
     }
   };
 
-  // Xóa chứng chỉ
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa chứng chỉ này?")) {
       return;
@@ -170,18 +213,6 @@ function Certificate() {
     } catch (err) {
       console.error("Error deleting certificate:", err);
     }
-  };
-
-  // Format date
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "Không giới hạn";
-    const cleanDate = dateStr.split("T")[0];
-    const parts = cleanDate.split("-");
-
-    if (parts.length < 3) return dateStr;
-    const [year, month, day] = parts;
-
-    return `${day}/${month}/${year}`;
   };
 
   return (
@@ -237,8 +268,18 @@ function Certificate() {
                       <div className="certificate-image">
                         {certificate.image_url ? (
                           <img
-                            src={certificate.image_url}
+                            src={
+                              certificate.image_url.startsWith("http")
+                                ? certificate.image_url
+                                : `${API_BASE_URL}${certificate.image_url}`
+                            }
                             alt={certificate.title}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              borderRadius: "6px",
+                            }}
                           />
                         ) : (
                           certificate.title?.charAt(0) || "?"
@@ -327,7 +368,6 @@ function Certificate() {
             className="certificate-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* MODAL HEADER */}
             <div className="modal-header">
               <div>
                 <h2>{editingId ? "Cập nhật chứng chỉ" : "Thêm chứng chỉ"}</h2>
@@ -348,7 +388,6 @@ function Certificate() {
             </div>
 
             <form onSubmit={handleSubmit}>
-              {/* TITLE */}
               <div className="form-group">
                 <label>Tên chứng chỉ</label>
                 <input
@@ -361,7 +400,6 @@ function Certificate() {
                 />
               </div>
 
-              {/* ISSUED BY */}
               <div className="form-group">
                 <label>Đơn vị cấp</label>
                 <input
@@ -374,7 +412,6 @@ function Certificate() {
                 />
               </div>
 
-              {/* DATE */}
               <div className="form-row">
                 <div className="form-group">
                   <label>Ngày cấp</label>
@@ -399,7 +436,6 @@ function Certificate() {
                 </div>
               </div>
 
-              {/* CREDENTIAL ID */}
               <div className="form-group">
                 <label>Mã chứng chỉ</label>
                 <input
@@ -411,7 +447,6 @@ function Certificate() {
                 />
               </div>
 
-              {/* CREDENTIAL URL */}
               <div className="form-group">
                 <label>Link chứng chỉ</label>
                 <input
@@ -423,19 +458,34 @@ function Certificate() {
                 />
               </div>
 
-              {/* IMAGE */}
+              {/* Tải ảnh từ máy tính */}
               <div className="form-group">
-                <label>Hình ảnh</label>
+                <label>Tải ảnh chứng chỉ từ máy tính</label>
                 <input
-                  type="text"
-                  name="image_url"
-                  value={formData.image_url}
-                  onChange={handleChange}
-                  placeholder="https://example.com/certificate.jpg"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
                 />
+                {imagePreview && (
+                  <div style={{ marginTop: "10px" }}>
+                    <p style={{ fontSize: "12px", color: "#666" }}>
+                      Ảnh hiển thị hiện tại:
+                    </p>
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{
+                        width: "80px",
+                        height: "60px",
+                        objectFit: "cover",
+                        borderRadius: "6px",
+                        border: "1px solid #ddd",
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
-              {/* DESCRIPTION */}
               <div className="form-group">
                 <label>Mô tả</label>
                 <textarea
@@ -447,7 +497,6 @@ function Certificate() {
                 />
               </div>
 
-              {/* FOOTER */}
               <div className="modal-footer">
                 <button
                   type="button"
