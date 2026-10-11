@@ -4,7 +4,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="navbar-container">
         <a href="#home" className="navbar-logo">
-          My Portfolio
+          Dtan Dev
         </a>
 
         <div className="nav-links">

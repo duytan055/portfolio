@@ -5,7 +5,6 @@ const { uploadProject } = require("../middleware/upload");
 const fs = require("fs");
 const path = require("path");
 
-// Hàm tạo slug cơ bản
 const createSlug = (str) => {
   return (str || "du-an-moi")
     .toLowerCase()
@@ -17,7 +16,6 @@ const createSlug = (str) => {
     .replace(/^-+|-+$/g, "");
 };
 
-// Hàm tạo slug duy nhất
 const generateUniqueSlug = async (title, currentId = null) => {
   let slug = createSlug(title);
   let query = "SELECT id FROM projects WHERE slug = $1";
@@ -37,7 +35,6 @@ const generateUniqueSlug = async (title, currentId = null) => {
   return slug;
 };
 
-// Hàm xử lý mảng công nghệ
 const parseTechArray = (tech) => {
   if (Array.isArray(tech)) return tech;
   if (typeof tech === "string" && tech.trim() !== "") {
@@ -47,6 +44,14 @@ const parseTechArray = (tech) => {
       .filter(Boolean);
   }
   return [];
+};
+
+const parseBoolean = (val, defaultValue = true) => {
+  if (val === undefined || val === null || val === "") return defaultValue;
+  if (val === "true" || val === true || val === "1" || val === 1) return true;
+  if (val === "false" || val === false || val === "0" || val === 0)
+    return false;
+  return defaultValue;
 };
 
 // 1 GET
@@ -86,6 +91,7 @@ router.post("/", uploadProject.single("image"), async (req, res) => {
       technologies,
       github_url,
       demo_url,
+      is_featured,
     } = req.body;
 
     if (!title) {
@@ -96,13 +102,23 @@ router.post("/", uploadProject.single("image"), async (req, res) => {
 
     const imageUrl = req.file ? `/uploads/projects/${req.file.filename}` : "";
     const techArray = parseTechArray(technologies);
+    const isFeaturedBool = parseBoolean(is_featured, true);
 
-    // Tự động kiểm tra và sinh slug
     const slug = await generateUniqueSlug(title);
 
     const query = `
-      INSERT INTO projects (title, slug, short_description, description, image_url, technologies, github_url, demo_url)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO projects (
+        title, 
+        slug, 
+        short_description, 
+        description, 
+        image_url, 
+        technologies, 
+        github_url, 
+        demo_url, 
+        is_featured
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *;
     `;
 
@@ -115,6 +131,7 @@ router.post("/", uploadProject.single("image"), async (req, res) => {
       techArray,
       github_url || "",
       demo_url || "",
+      isFeaturedBool,
     ];
 
     const { rows } = await pool.query(query, values);
@@ -137,6 +154,7 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
       technologies,
       github_url,
       demo_url,
+      is_featured,
     } = req.body;
 
     if (!title) {
@@ -149,8 +167,8 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
       ? `/uploads/projects/${req.file.filename}`
       : image_url || "";
     const techArray = parseTechArray(technologies);
+    const isFeaturedBool = parseBoolean(is_featured, true);
 
-    // Kiểm tra trùng slug
     const slug = await generateUniqueSlug(title, id);
 
     const query = `
@@ -162,8 +180,9 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
         image_url = $5,
         technologies = $6,
         github_url = $7,
-        demo_url = $8
-      WHERE id = $9
+        demo_url = $8,
+        is_featured = $9
+      WHERE id = $10
       RETURNING *;
     `;
 
@@ -176,6 +195,7 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
       techArray,
       github_url || "",
       demo_url || "",
+      isFeaturedBool,
       id,
     ];
 
@@ -193,7 +213,7 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
   }
 });
 
-//4 DELETE
+// 4 DELETE
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 

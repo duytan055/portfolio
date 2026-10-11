@@ -1,0 +1,273 @@
+/* ================================= 
+   1. CONTACT WRAPPER & HEADER
+======================================== */
+.contact {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  box-sizing: border-box;
+}
+
+.contact-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.contact-header h2 {
+  margin: 0 0 12px 0;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-h, #ffffff);
+  text-align: center;
+}
+
+.contact-header p {
+  font-size: 15px;
+  color: #94a3b8;
+  margin: 0 auto;
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* ========================================
+   2. CONTACT CONTAINER (KHUNG FORM GLASS)
+======================================== */
+.contact-container {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 40px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 40px;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+/* ========================================
+   3. LEFT COLUMN: INFO CARD
+======================================== */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-right: 28px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.contact-info h3 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.info-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-text span {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.info-text a,
+.info-text p {
+  font-size: 15px;
+  font-weight: 500;
+  color: #f1f5f9;
+  text-decoration: none;
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.info-text a:hover {
+  color: #38bdf8;
+}
+
+/* ========================================
+   4. RIGHT COLUMN: FORM STYLING
+======================================== */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  text-align: left;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #cbd5e1;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #64748b;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.2) 0%,
+    rgba(59, 130, 246, 0.2) 100%
+  );
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px auto 0;
+  width: fit-content;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.35) 0%,
+    rgba(59, 130, 246, 0.35) 100%
+  );
+  border-color: #38bdf8;
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.25);
+  transform: translateY(-2px);
+}
+
+/* ========================================
+   5. SCROLL REVEAL ANIMATIONS
+======================================== */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(35px);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.appear {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.delay-1 {
+  transition-delay: 0.2s;
+}
+
+/* ========================================
+   6. RESPONSIVE BREAKPOINTS
+======================================== */
+@media (max-width: 900px) {
+  .contact {
+    padding: 60px 20px;
+  }
+
+  .contact-container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 28px;
+  }
+
+  .contact-info {
+    padding-right: 0;
+    border-right: none;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-header h2 {
+    font-size: 36px;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+}

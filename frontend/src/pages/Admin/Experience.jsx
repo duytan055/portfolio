@@ -288,7 +288,6 @@ function Experience() {
                       </div>
                       <div>
                         <h3>{experience.company}</h3>
-                        <p>{experience.description}</p>
                       </div>
                     </div>
                   </td>

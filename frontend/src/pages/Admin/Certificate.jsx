@@ -264,8 +264,8 @@ function Certificate() {
                   <td>{index + 1}</td>
 
                   <td>
-                    <div className="certificate-info">
-                      <div className="certificate-image">
+                    <div className="admin-certificate-info">
+                      <div className="admin-certificate-image">
                         {certificate.image_url ? (
                           <img
                             src={
@@ -288,7 +288,6 @@ function Certificate() {
 
                       <div>
                         <h3>{certificate.title}</h3>
-                        <p>{certificate.description}</p>
                       </div>
                     </div>
                   </td>
@@ -298,19 +297,19 @@ function Certificate() {
                   </td>
 
                   <td>
-                    <span className="certificate-date">
+                    <span className="admin-certificate-date">
                       {formatDate(certificate.issue_date)}
                     </span>
                   </td>
 
                   <td>
-                    <span className="certificate-date">
+                    <span className="admin-certificate-date">
                       {formatDate(certificate.expiration_date)}
                     </span>
                   </td>
 
                   <td>
-                    <span className="credential-id">
+                    <span className="admin-credential-id">
                       {certificate.credential_url ? (
                         <a
                           href={certificate.credential_url}
@@ -332,7 +331,7 @@ function Certificate() {
                   </td>
 
                   <td>
-                    <div className="certificate-actions">
+                    <div className="admin-certificate-actions">
                       <button
                         className="edit-btn"
                         onClick={() => handleEdit(certificate)}
@@ -363,9 +362,12 @@ function Certificate() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="certificate-modal-overlay" onClick={handleCloseModal}>
+        <div
+          className="admin-certificate-modal-overlay"
+          onClick={handleCloseModal}
+        >
           <div
-            className="certificate-modal"
+            className="admin-certificate-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">

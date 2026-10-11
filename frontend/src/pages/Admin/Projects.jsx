@@ -24,7 +24,14 @@ const INITIAL_FORM_STATE = {
   technologies: "",
   github_url: "",
   demo_url: "",
-  status: true,
+  is_featured: true,
+};
+
+const checkIsFeatured = (val) => {
+  if (val === false || val === 0 || val === "false" || val === "0")
+    return false;
+  if (val === true || val === 1 || val === "true" || val === "1") return true;
+  return true;
 };
 
 function Projects() {
@@ -38,15 +45,12 @@ function Projects() {
 
   const { token } = useContext(AuthContext);
 
-  // Form State
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
-  // Load danh sách dự án
   useEffect(() => {
     fetchProjects();
   }, []);
 
-  // Lấy dữ liệu dự án từ API
   const fetchProjects = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/projects`);
@@ -58,7 +62,6 @@ function Projects() {
     }
   };
 
-  // Xử lý thay đổi các ô nhập liệu chữ & checkbox
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -67,7 +70,6 @@ function Projects() {
     }));
   };
 
-  // Xử lý khi chọn file ảnh từ máy
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -79,7 +81,6 @@ function Projects() {
     }
   };
 
-  // Mở Modal Thêm mới
   const handleOpenAddModal = () => {
     setEditingId(null);
     setFormData(INITIAL_FORM_STATE);
@@ -88,7 +89,6 @@ function Projects() {
     setShowModal(true);
   };
 
-  // Mở Modal Chỉnh sửa
   const handleEdit = (project) => {
     setEditingId(project.id);
 
@@ -104,7 +104,7 @@ function Projects() {
       technologies: techString,
       github_url: project.github_url || "",
       demo_url: project.demo_url || "",
-      status: project.status ?? true,
+      is_featured: checkIsFeatured(project.is_featured),
     });
 
     setImageFile(null);
@@ -120,7 +120,6 @@ function Projects() {
     setShowModal(true);
   };
 
-  // Đóng Modal và Reset Form
   const handleCloseModal = () => {
     if (previewUrl && previewUrl.startsWith("blob:")) {
       URL.revokeObjectURL(previewUrl);
@@ -132,7 +131,63 @@ function Projects() {
     setPreviewUrl("");
   };
 
-  // Form Xử lý Thêm mới & Cập nhật
+  const handleToggleStatus = async (project) => {
+    const currentStatus = checkIsFeatured(project.is_featured);
+    const updatedStatus = !currentStatus;
+
+    setProjects((prev) =>
+      prev.map((item) =>
+        item.id === project.id ? { ...item, is_featured: updatedStatus } : item,
+      ),
+    );
+
+    try {
+      const data = new FormData();
+      data.append("title", project.title || "");
+      data.append("short_description", project.short_description || "");
+      data.append("description", project.description || "");
+      data.append(
+        "technologies",
+        Array.isArray(project.technologies)
+          ? project.technologies.join(", ")
+          : project.technologies || "",
+      );
+      data.append("github_url", project.github_url || "");
+      data.append("demo_url", project.demo_url || "");
+      data.append("image_url", project.image_url || "");
+      data.append("is_featured", updatedStatus ? "true" : "false");
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/projects/${project.id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: data,
+        },
+      );
+
+      if (!response.ok) throw new Error("Cập nhật trạng thái thất bại");
+
+      const savedProject = await response.json();
+      setProjects((prev) =>
+        prev.map((item) => (item.id === project.id ? savedProject : item)),
+      );
+    } catch (error) {
+      console.error("Error toggling status:", error);
+
+      setProjects((prev) =>
+        prev.map((item) =>
+          item.id === project.id
+            ? { ...item, is_featured: currentStatus }
+            : item,
+        ),
+      );
+      alert("Lỗi khi cập nhật trạng thái hiển thị dự án!");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -143,7 +198,8 @@ function Projects() {
     data.append("technologies", formData.technologies || "");
     data.append("github_url", formData.github_url || "");
     data.append("demo_url", formData.demo_url || "");
-    data.append("status", formData.status);
+
+    data.append("is_featured", formData.is_featured ? "true" : "false");
 
     if (imageFile) {
       data.append("image", imageFile);
@@ -206,14 +262,14 @@ function Projects() {
       if (response.ok) {
         setProjects((prev) => prev.filter((project) => project.id !== id));
       } else {
-        alert("Xóa dự án thất bại hoặc bạn không có quyền thực hiện!");
+        alert("Xóa dự án thất bại!");
       }
     } catch (error) {
       console.error("Error deleting project:", error);
     }
   };
 
-  // Lọc dự án theo từ khóa
+  // Lọc theo từ khóa tìm kiếm
   const filteredProjects = projects.filter((project) =>
     project.title?.toLowerCase().includes(search.toLowerCase()),
   );
@@ -261,111 +317,114 @@ function Projects() {
 
           <tbody>
             {filteredProjects.length > 0 ? (
-              filteredProjects.map((project, index) => (
-                <tr key={project.id || index}>
-                  <td>{index + 1}</td>
+              filteredProjects.map((project, index) => {
+                const isActive = checkIsFeatured(project.is_featured);
 
-                  <td>
-                    <div className="project-info">
-                      <div className="project-image">
-                        {project.image_url ? (
-                          <img
-                            src={
-                              project.image_url.startsWith("http")
-                                ? project.image_url
-                                : `${API_BASE_URL}${project.image_url}`
-                            }
-                            alt={project.title}
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                              borderRadius: "6px",
-                            }}
-                          />
-                        ) : project.title ? (
-                          project.title.charAt(0).toUpperCase()
-                        ) : (
-                          "P"
+                return (
+                  <tr key={project.id || index}>
+                    <td>{index + 1}</td>
+
+                    <td>
+                      <div className="admin-project-info">
+                        <div className="admin-project-image">
+                          {project.image_url ? (
+                            <img
+                              src={
+                                project.image_url.startsWith("http")
+                                  ? project.image_url
+                                  : `${API_BASE_URL}${project.image_url}`
+                              }
+                              alt={project.title}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: "6px",
+                              }}
+                            />
+                          ) : project.title ? (
+                            project.title.charAt(0).toUpperCase()
+                          ) : (
+                            "P"
+                          )}
+                        </div>
+                        <div>
+                          <h3>{project.title}</h3>
+                          <p>
+                            {project.short_description || project.description}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div className="technology-list">
+                        {(Array.isArray(project.technologies)
+                          ? project.technologies
+                          : (project.technologies || "").split(",")
+                        )
+                          .map((tech) => tech.trim())
+                          .filter(Boolean)
+                          .map((tech, idx) => (
+                            <span key={idx}>{tech}</span>
+                          ))}
+                      </div>
+                    </td>
+
+                    <td>
+                      <span
+                        className={isActive ? "status active" : "status hidden"}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleToggleStatus(project)}
+                        title="Click để đổi nhanh trạng thái Ẩn / Hiện"
+                      >
+                        {isActive ? "Active" : "Hidden"}
+                      </span>
+                    </td>
+
+                    <td>
+                      <div className="project-links">
+                        {project.github_url && (
+                          <a
+                            href={project.github_url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <FaGithub />
+                          </a>
+                        )}
+                        {project.demo_url && (
+                          <a
+                            href={project.demo_url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <FaExternalLinkAlt />
+                          </a>
                         )}
                       </div>
-                      <div>
-                        <h3>{project.title}</h3>
-                        <p>
-                          {project.short_description || project.description}
-                        </p>
+                    </td>
+
+                    <td>
+                      <div className="admin-project-actions">
+                        <button
+                          className="edit-btn"
+                          onClick={() => handleEdit(project)}
+                        >
+                          <FaEdit />
+                        </button>
+
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDelete(project.id)}
+                        >
+                          <FaTrash />
+                        </button>
                       </div>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div className="technology-list">
-                      {(Array.isArray(project.technologies)
-                        ? project.technologies
-                        : (project.technologies || "").split(",")
-                      )
-                        .map((tech) => tech.trim())
-                        .filter(Boolean)
-                        .map((tech, idx) => (
-                          <span key={idx}>{tech}</span>
-                        ))}
-                    </div>
-                  </td>
-
-                  <td>
-                    <span
-                      className={
-                        project.status !== false
-                          ? "status active"
-                          : "status hidden"
-                      }
-                    >
-                      {project.status !== false ? "Active" : "Hidden"}
-                    </span>
-                  </td>
-
-                  <td>
-                    <div className="project-links">
-                      {project.github_url && (
-                        <a
-                          href={project.github_url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <FaGithub />
-                        </a>
-                      )}
-                      {project.demo_url && (
-                        <a
-                          href={project.demo_url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <FaExternalLinkAlt />
-                        </a>
-                      )}
-                    </div>
-                  </td>
-
-                  <td>
-                    <div className="project-actions">
-                      <button
-                        className="edit-btn"
-                        onClick={() => handleEdit(project)}
-                      >
-                        <FaEdit />
-                      </button>
-
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDelete(project.id)}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan="6" className="empty-projects">
@@ -380,8 +439,14 @@ function Projects() {
       {/* ADD / EDIT PROJECT MODAL */}
       {showModal &&
         createPortal(
-          <div className="project-modal-overlay" onClick={handleCloseModal}>
-            <div className="project-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="admin-project-modal-overlay"
+            onClick={handleCloseModal}
+          >
+            <div
+              className="admin-project-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="modal-header">
                 <div>
                   <h2>{editingId ? "Sửa dự án" : "Thêm dự án"}</h2>
@@ -436,7 +501,6 @@ function Projects() {
                   />
                 </div>
 
-                {/* Chọn ảnh từ máy tính */}
                 <div className="form-group">
                   <label>Hình ảnh dự án</label>
                   <input
@@ -497,11 +561,12 @@ function Projects() {
                   </div>
                 </div>
 
+                {/* Checkbox Trạng Thái */}
                 <label className="status-checkbox">
                   <input
                     type="checkbox"
-                    name="status"
-                    checked={formData.status}
+                    name="is_featured"
+                    checked={Boolean(formData.is_featured)}
                     onChange={handleChange}
                   />
                   <span>Hiển thị dự án</span>
