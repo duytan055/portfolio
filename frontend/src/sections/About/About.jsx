@@ -61,7 +61,16 @@ function About() {
 
           <div className="about-button">
             <button>Download CV</button>
-            <button>View Projects</button>
+            <button
+              onClick={() => {
+                const portfolioSection = document.getElementById("portfolio");
+                if (portfolioSection) {
+                  portfolioSection.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+            >
+              View Projects
+            </button>
           </div>
         </div>
 

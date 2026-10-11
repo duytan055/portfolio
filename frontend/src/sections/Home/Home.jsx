@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Lottie } from "lottie-react";
 import { FaGithub, FaLinkedin, FaCode } from "react-icons/fa";
 
@@ -7,6 +8,7 @@ import codeAnimation from "../../assets/code-animation.json";
 import "./Home.css";
 
 function Home() {
+  const location = useLocation();
   const [displayedTitle, setDisplayedTitle] = useState("");
   const [titleIndex, setTitleIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -17,6 +19,20 @@ function Home() {
     "I am a passionate software engineer with experience in developing web applications and a strong interest in learning new technologies. I enjoy solving complex problems and creating efficient solutions.";
 
   const [canType, setCanType] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.scrollTo === "portfolio") {
+      setTimeout(() => {
+        document.getElementById("portfolio")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+
+        // Xóa state để refresh không tự scroll lại
+        window.history.replaceState({}, document.title);
+      }, 100);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -90,7 +106,7 @@ function Home() {
 
         <div className="home__icons">
           <a
-            href="https://github.com"
+            href="https://github.com/duytan055"
             target="_blank"
             rel="noopener noreferrer"
             className="home__icon"
@@ -99,7 +115,7 @@ function Home() {
           </a>
 
           <a
-            href="https://linkedin.com"
+            href="https://www.linkedin.com/in/jim-nguyen-814255390/?isSelfProfile=true"
             target="_blank"
             rel="noopener noreferrer"
             className="home__icon"
@@ -107,7 +123,7 @@ function Home() {
             <FaLinkedin />
           </a>
 
-          <a href="#contact" className="home__icon">
+          <a href="#portfolio" className="home__icon">
             <FaCode />
           </a>
         </div>

@@ -243,8 +243,8 @@ function ToolsSkills() {
 
                   {/* NAME */}
                   <td>
-                    <div className="skill-info">
-                      <div className="skill-image">
+                    <div className="admin-skill-info">
+                      <div className="admin-skill-image">
                         {skill.image_url ? (
                           <img
                             src={
@@ -264,7 +264,7 @@ function ToolsSkills() {
 
                   {/* DESCRIPTION */}
                   <td>
-                    <span className="skill-description">
+                    <span className="admin-skill-description">
                       {skill.description || "—"}
                     </span>
                   </td>
@@ -280,7 +280,7 @@ function ToolsSkills() {
 
                   {/* ACTIONS */}
                   <td>
-                    <div className="skill-actions">
+                    <div className="admin-skill-actions">
                       <button
                         className="edit-btn"
                         onClick={() => handleEdit(skill)}
@@ -311,8 +311,11 @@ function ToolsSkills() {
 
       {/* MODAL */}
       {showModal && (
-        <div className="skill-modal-overlay" onClick={handleCloseModal}>
-          <div className="skill-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="admin-skill-modal-overlay" onClick={handleCloseModal}>
+          <div
+            className="admin-skill-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
               <div>
                 <h2>{editingId ? "Cập nhật kỹ năng" : "Thêm kỹ năng"}</h2>
