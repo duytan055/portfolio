@@ -36,7 +36,7 @@
 }
 
 .title-engineer {
-  background: linear-gradient(90deg, #7652ff, #a855f7, #c084fc);
+  background: linear-gradient(90deg, #c1c9f0, #747eee, #272ae5);
 
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -106,9 +106,9 @@
 
   background: rgba(118, 82, 255, 0.1);
 
-  border: 1.5px solid rgba(118, 82, 255, 0.5);
+  border: 1.5px solid rgba(225, 223, 235, 0.5);
 
-  color: #7652ff;
+  color: #ccc;
 
   font-size: 24px;
 

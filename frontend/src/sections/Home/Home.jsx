@@ -28,7 +28,6 @@ function Home() {
           block: "start",
         });
 
-        // Xóa state để refresh không tự scroll lại
         window.history.replaceState({}, document.title);
       }, 100);
     }
@@ -47,14 +46,12 @@ function Home() {
     let timeout;
 
     if (!isDeleting) {
-      // Đang nhập
       if (titleIndex < titleText.length) {
         timeout = setTimeout(() => {
           setDisplayedTitle(titleText.slice(0, titleIndex + 1));
           setTitleIndex((prev) => prev + 1);
         }, 250);
       } else {
-        // Nhập xong → giữ 2 giây
         timeout = setTimeout(() => {
           setIsDeleting(true);
         }, 2000);

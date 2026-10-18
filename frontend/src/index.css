@@ -37,17 +37,13 @@ body {
   min-height: 100vh;
 
   background:
-    radial-gradient(
-      circle at 15% 20%,
-      rgba(118, 82, 255, 0.22),
-      transparent 32%
-    ),
+    radial-gradient(circle at 15% 20%, rgba(47, 46, 51, 0.22), transparent 32%),
     radial-gradient(
       circle at 85% 75%,
-      rgba(168, 85, 247, 0.18),
+      rgba(103, 103, 235, 0.911),
       transparent 32%
     ),
-    linear-gradient(135deg, #090616 0%, #0d0820 50%, #120a25 100%);
+    linear-gradient(135deg, #22209d 0%, #050505 50%, #1b1737 100%);
 }
 
 #root {

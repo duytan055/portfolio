@@ -1,8 +1,8 @@
-﻿import { useEffect, useState, useRef } from "react";
+﻿import { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import "./Portfolio.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -16,10 +16,8 @@ const formatDate = (dateString) => {
   return `${day}/${month}/${year}`;
 };
 
-// Kiểm tra URL thực sự hợp lệ (loại bỏ hoàn toàn các chuỗi rác từ DB/API)
 const isValidUrl = (url) => {
   if (!url || typeof url !== "string") return false;
-
   const trimmed = url.trim().toLowerCase();
   const invalidValues = [
     "",
@@ -39,19 +37,17 @@ const isValidUrl = (url) => {
 
   try {
     const fullUrl =
-      url.trim().startsWith("http://") || url.trim().startsWith("https://")
-        ? url.trim()
-        : `https://${url.trim()}`;
+      trimmed.startsWith("http://") || trimmed.startsWith("https://")
+        ? trimmed
+        : `https://${trimmed}`;
 
     const parsed = new URL(fullUrl);
-    // Yêu cầu tên miền phải chứa dấu chấm (VD: demo.com, github.com) hoặc localhost
     return parsed.hostname.includes(".") || parsed.hostname === "localhost";
   } catch {
     return false;
   }
 };
 
-// Chuẩn hóa đường dẫn để thẻ <a> luôn điều hướng đúng ra trang ngoài
 const formatUrl = (url) => {
   if (!url) return "#";
   const trimmed = url.trim();
@@ -61,11 +57,17 @@ const formatUrl = (url) => {
   return `https://${trimmed}`;
 };
 
+const resolveImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  return imageUrl.startsWith("http") ? imageUrl : `${API_BASE_URL}${imageUrl}`;
+};
+
 function Portfolio() {
   const [projects, setProjects] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [experiences, setExperiences] = useState([]);
   const [skills, setSkills] = useState([]);
+
   const [selectedBox, setSelectedBox] = useState(1);
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedCertificate, setSelectedCertificate] = useState(null);
@@ -74,23 +76,7 @@ function Portfolio() {
   const tabRefs = useRef([]);
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0 });
 
-  useEffect(() => {
-    const observerOptions = { threshold: 0.15 };
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("appear");
-        }
-      });
-    }, observerOptions);
-
-    const animatedElements = document.querySelectorAll(".reveal-on-scroll");
-    animatedElements.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, [selectedBox]);
-
-  useEffect(() => {
+  const updateSlider = useCallback(() => {
     const currentTab = tabRefs.current[selectedBox - 1];
     if (currentTab) {
       setSliderStyle({
@@ -101,74 +87,99 @@ function Portfolio() {
   }, [selectedBox]);
 
   useEffect(() => {
-    const handleResize = () => {
-      const currentTab = tabRefs.current[selectedBox - 1];
-      if (currentTab) {
-        setSliderStyle({
-          left: currentTab.offsetLeft,
-          width: currentTab.offsetWidth,
-        });
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [selectedBox]);
+    updateSlider();
+    window.addEventListener("resize", updateSlider);
+    return () => window.removeEventListener("resize", updateSlider);
+  }, [updateSlider]);
 
   useEffect(() => {
-    fetchProjects();
-    fetchCertificates();
-    fetchExperiences();
-    fetchSkills();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("appear");
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+
+    const animatedElements = document.querySelectorAll(".reveal-on-scroll");
+    animatedElements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [selectedBox]);
+
+  const isAnyModalOpen = Boolean(
+    selectedProject || selectedCertificate || selectedExperience,
+  );
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSelectedProject(null);
+        setSelectedCertificate(null);
+        setSelectedExperience(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "auto";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isAnyModalOpen]);
+
+  useEffect(() => {
+    const fetchData = async (endpoint, setter, label) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (Array.isArray(data)) setter(data);
+      } catch (error) {
+        console.error(`Lỗi tải ${label}:`, error);
+      }
+    };
+
+    fetchData("/api/projects", setProjects, "dự án");
+    fetchData("/api/certificates", setCertificates, "chứng chỉ");
+    fetchData("/api/experience", setExperiences, "kinh nghiệm");
+    fetchData("/api/toolsskills", setSkills, "kỹ năng");
   }, []);
 
   const activeProject = projects.find(
-    (project) => String(project.id) === String(selectedProject),
+    (p) => String(p.id) === String(selectedProject),
   );
   const activeCertificate = certificates.find(
-    (certificate) => String(certificate.id) === String(selectedCertificate),
+    (c) => String(c.id) === String(selectedCertificate),
   );
   const activeExperience = experiences.find(
-    (experience) => String(experience.id) === String(selectedExperience),
+    (e) => String(e.id) === String(selectedExperience),
   );
 
-  const fetchProjects = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/projects`);
-      const data = await response.json();
-      if (Array.isArray(data)) setProjects(data);
-    } catch (error) {
-      console.error("Lỗi tải dự án:", error);
+  const parseTechnologies = (techData) => {
+    if (!techData) return [];
+    let list = techData;
+    if (typeof list === "string") {
+      try {
+        const parsed = JSON.parse(list);
+        list = Array.isArray(parsed) ? parsed : list.split(",");
+      } catch {
+        list = list.split(",");
+      }
     }
-  };
-
-  const fetchCertificates = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/certificates`);
-      const data = await response.json();
-      if (Array.isArray(data)) setCertificates(data);
-    } catch (error) {
-      console.error("Lỗi tải chứng chỉ:", error);
-    }
-  };
-
-  const fetchExperiences = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/experience`);
-      const data = await response.json();
-      if (Array.isArray(data)) setExperiences(data);
-    } catch (error) {
-      console.error("Lỗi tải kinh nghiệm:", error);
-    }
-  };
-
-  const fetchSkills = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/toolsskills`);
-      const data = await response.json();
-      if (Array.isArray(data)) setSkills(data);
-    } catch (error) {
-      console.error("Lỗi tải kỹ năng:", error);
-    }
+    if (!Array.isArray(list)) return [];
+    return list
+      .filter((item) => typeof item === "string")
+      .map((item) => item.trim())
+      .filter(Boolean);
   };
 
   return (
@@ -214,7 +225,7 @@ function Portfolio() {
       </div>
 
       <div className="portfolio-content reveal-on-scroll delay-2">
-        {/* TAB 1: PROJECTS */}
+        {/* TAB 1: DỰ ÁN */}
         {selectedBox === 1 &&
           (() => {
             const visibleProjects = projects.filter(
@@ -223,6 +234,7 @@ function Portfolio() {
                 p.is_featured !== "false" &&
                 p.is_featured !== 0,
             );
+
             if (visibleProjects.length === 0) {
               return (
                 <div className="empty-message">
@@ -230,15 +242,11 @@ function Portfolio() {
                 </div>
               );
             }
+
             return (
               <div className="projects-grid">
                 {visibleProjects.map((project, index) => {
-                  const imageUrl = project.image_url
-                    ? project.image_url.startsWith("http")
-                      ? project.image_url
-                      : `${API_BASE_URL}${project.image_url}`
-                    : null;
-
+                  const imageUrl = resolveImageUrl(project.image_url);
                   const hasDemo = isValidUrl(project.demo_url);
 
                   return (
@@ -278,7 +286,6 @@ function Portfolio() {
                               type="button"
                               className="live-demo disabled"
                               disabled
-                              onClick={(e) => e.preventDefault()}
                             >
                               Live Demo
                             </button>
@@ -299,17 +306,12 @@ function Portfolio() {
             );
           })()}
 
-        {/* TAB 2: CERTIFICATES */}
+        {/* TAB 2: CHỨNG CHỈ */}
         {selectedBox === 2 &&
-          (certificates && certificates.length > 0 ? (
+          (certificates.length > 0 ? (
             <div className="certificates-grid">
               {certificates.map((certificate, index) => {
-                const imageUrl = certificate.image_url
-                  ? certificate.image_url.startsWith("http")
-                    ? certificate.image_url
-                    : `${API_BASE_URL}${certificate.image_url}`
-                  : null;
-
+                const imageUrl = resolveImageUrl(certificate.image_url);
                 return (
                   <div
                     key={certificate.id}
@@ -342,17 +344,12 @@ function Portfolio() {
             </div>
           ))}
 
-        {/* TAB 3: EXPERIENCES */}
+        {/* TAB 3: KINH NGHIỆM */}
         {selectedBox === 3 &&
-          (experiences && experiences.length > 0 ? (
+          (experiences.length > 0 ? (
             <div className="experiences-grid">
               {experiences.map((experience, index) => {
-                const imageUrl = experience.image_url
-                  ? experience.image_url.startsWith("http")
-                    ? experience.image_url
-                    : `${API_BASE_URL}${experience.image_url}`
-                  : null;
-
+                const imageUrl = resolveImageUrl(experience.image_url);
                 return (
                   <div
                     key={experience.id}
@@ -392,17 +389,12 @@ function Portfolio() {
             </div>
           ))}
 
-        {/* TAB 4: SKILLS */}
+        {/* TAB 4: KỸ NĂNG */}
         {selectedBox === 4 &&
-          (skills && skills.length > 0 ? (
+          (skills.length > 0 ? (
             <div className="skills-grid">
               {skills.map((skill, index) => {
-                const imageUrl = skill.image_url
-                  ? skill.image_url.startsWith("http")
-                    ? skill.image_url
-                    : `${API_BASE_URL}${skill.image_url}`
-                  : null;
-
+                const imageUrl = resolveImageUrl(skill.image_url);
                 return (
                   <div
                     key={skill.id}
@@ -459,11 +451,7 @@ function Portfolio() {
                 <div className="detail-image">
                   {activeProject.image_url ? (
                     <img
-                      src={
-                        activeProject.image_url.startsWith("http")
-                          ? activeProject.image_url
-                          : `${API_BASE_URL}${activeProject.image_url}`
-                      }
+                      src={resolveImageUrl(activeProject.image_url)}
                       alt={activeProject.title}
                     />
                   ) : (
@@ -471,7 +459,6 @@ function Portfolio() {
                   )}
                 </div>
                 <div className="detail-actions">
-                  {/* Live Demo Button */}
                   {isValidUrl(activeProject.demo_url) ? (
                     <a
                       href={formatUrl(activeProject.demo_url)}
@@ -486,13 +473,10 @@ function Portfolio() {
                       type="button"
                       className="action-btn demo-btn disabled"
                       disabled
-                      onClick={(e) => e.preventDefault()}
                     >
                       ↗ Live Demo
                     </button>
                   )}
-
-                  {/* GitHub Button */}
                   {isValidUrl(activeProject.github_url) ? (
                     <a
                       href={formatUrl(activeProject.github_url)}
@@ -507,7 +491,6 @@ function Portfolio() {
                       type="button"
                       className="action-btn github-btn disabled"
                       disabled
-                      onClick={(e) => e.preventDefault()}
                     >
                       GitHub ↗
                     </button>
@@ -526,23 +509,9 @@ function Portfolio() {
                   <h3>&lt;/&gt; Technologies Used</h3>
                   <div className="tech-tags">
                     {(() => {
-                      let technologies = activeProject.technologies;
-                      if (typeof technologies === "string") {
-                        try {
-                          const parsed = JSON.parse(technologies);
-                          technologies = Array.isArray(parsed)
-                            ? parsed
-                            : technologies.split(",");
-                        } catch {
-                          technologies = technologies.split(",");
-                        }
-                      }
-                      if (!Array.isArray(technologies)) technologies = [];
-                      technologies = technologies
-                        .filter((item) => typeof item === "string")
-                        .map((item) => item.trim())
-                        .filter(Boolean);
-
+                      const technologies = parseTechnologies(
+                        activeProject.technologies,
+                      );
                       return technologies.length > 0 ? (
                         technologies.map((item, index) => (
                           <span key={`${item}-${index}`} className="tech-tag">
@@ -583,11 +552,7 @@ function Portfolio() {
               <div className="modal-certificate-image">
                 {activeCertificate.image_url ? (
                   <img
-                    src={
-                      activeCertificate.image_url.startsWith("http")
-                        ? activeCertificate.image_url
-                        : `${API_BASE_URL}${activeCertificate.image_url}`
-                    }
+                    src={resolveImageUrl(activeCertificate.image_url)}
                     alt={activeCertificate.title}
                   />
                 ) : (
@@ -623,11 +588,7 @@ function Portfolio() {
               <div className="experience-modal-image">
                 {activeExperience.image_url ? (
                   <img
-                    src={
-                      activeExperience.image_url.startsWith("http")
-                        ? activeExperience.image_url
-                        : `${API_BASE_URL}${activeExperience.image_url}`
-                    }
+                    src={resolveImageUrl(activeExperience.image_url)}
                     alt={activeExperience.company}
                   />
                 ) : (

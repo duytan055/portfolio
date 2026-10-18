@@ -3,9 +3,9 @@
 ======================================== */
 .portfolio {
   width: 100%;
-  min-height: 100vh;
-  padding: 100px 80px;
+  padding: 80px 80px;
   box-sizing: border-box;
+  transition: padding 0.3s ease;
 }
 
 .portfolio > h1 {
@@ -186,7 +186,7 @@
   transition: background 0.3s ease;
 }
 
-/* TRẠNG THÁI DISABLED (NÚT CHƯA CÓ LINK) - ĐÃ GỘP TỐI ƯU */
+/* TRẠNG THÁI DISABLED (NÚT CHƯA CÓ LINK) */
 .live-demo.disabled,
 .details-button:disabled,
 .action-btn.disabled,
@@ -869,7 +869,33 @@ button.disabled:hover {
 }
 
 /* ========================================
-   9. ANIMATION & RESPONSIVE BREAKPOINTS
+   9. EMPTY MESSAGE STATE (TRẠNG THÁI TRỐNG)
+======================================== */
+.empty-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 20px 0 10px;
+  text-align: center;
+}
+
+.empty-message p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  padding: 20px 40px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   10. ANIMATION & RESPONSIVE BREAKPOINTS
 ======================================== */
 @keyframes modalFadeIn {
   from {
@@ -984,7 +1010,7 @@ button.disabled:hover {
 }
 
 /* ========================================
-   10. SCROLL REVEAL ANIMATIONS
+   11. SCROLL REVEAL ANIMATIONS
 ======================================== */
 .reveal-on-scroll {
   opacity: 0;
