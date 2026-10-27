@@ -109,7 +109,6 @@ function Contact() {
               </div>
             </div>
 
-            {/* Phone */}
             <div className="info-item">
               <div className="info-icon">
                 <svg
@@ -131,7 +130,6 @@ function Contact() {
               </div>
             </div>
 
-            {/* Location */}
             <div className="info-item">
               <div className="info-icon">
                 <svg
@@ -154,7 +152,6 @@ function Contact() {
               </div>
             </div>
 
-            {/* GitHub */}
             <div className="info-item">
               <div className="info-icon">
                 <svg
@@ -183,7 +180,6 @@ function Contact() {
               </div>
             </div>
 
-            {/* LinkedIn */}
             <div className="info-item">
               <div className="info-icon">
                 <svg
@@ -215,7 +211,6 @@ function Contact() {
           </div>
         </div>
 
-        {/* Cột phải: Form gửi tin nhắn */}
         <form className="contact-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">

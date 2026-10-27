@@ -447,6 +447,7 @@ function Portfolio() {
               >
                 ×
               </button>
+
               <div className="detail-right">
                 <div className="detail-image">
                   {activeProject.image_url ? (
@@ -458,6 +459,59 @@ function Portfolio() {
                     <div className="placeholder-image">Chưa có hình ảnh</div>
                   )}
                 </div>
+
+                <div className="detail-features">
+                  <h3>⚡ Key Features</h3>
+                  <ul className="features-list">
+                    {(() => {
+                      const features = Array.isArray(activeProject.key_features)
+                        ? activeProject.key_features
+                        : (activeProject.key_features || "")
+                            .split(",")
+                            .map((i) => i.trim())
+                            .filter(Boolean);
+
+                      return features.length > 0 ? (
+                        features.map((item, index) => (
+                          <li key={`feature-${index}`}>{item}</li>
+                        ))
+                      ) : (
+                        <li>Chưa cập nhật tính năng chính.</li>
+                      );
+                    })()}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="detail-left">
+                <h2 className="detail-title">{activeProject.title}</h2>
+                <p className="detail-description">
+                  {activeProject.description ||
+                    activeProject.short_description ||
+                    "Chưa có mô tả."}
+                </p>
+
+                <div className="detail-tech">
+                  <h3>&lt;/&gt; Technologies Used</h3>
+                  <div className="tech-tags">
+                    {(() => {
+                      const technologies = parseTechnologies(
+                        activeProject.technologies,
+                      );
+                      return technologies.length > 0 ? (
+                        technologies.map((item, index) => (
+                          <span key={`${item}-${index}`} className="tech-tag">
+                            <span className="tag-icon">⬡</span>
+                            {item}
+                          </span>
+                        ))
+                      ) : (
+                        <p>Chưa cập nhật công nghệ.</p>
+                      );
+                    })()}
+                  </div>
+                </div>
+
                 <div className="detail-actions">
                   {isValidUrl(activeProject.demo_url) ? (
                     <a
@@ -495,35 +549,6 @@ function Portfolio() {
                       GitHub ↗
                     </button>
                   )}
-                </div>
-              </div>
-
-              <div className="detail-left">
-                <h2 className="detail-title">{activeProject.title}</h2>
-                <p className="detail-description">
-                  {activeProject.description ||
-                    activeProject.short_description ||
-                    "Chưa có mô tả."}
-                </p>
-                <div className="detail-tech">
-                  <h3>&lt;/&gt; Technologies Used</h3>
-                  <div className="tech-tags">
-                    {(() => {
-                      const technologies = parseTechnologies(
-                        activeProject.technologies,
-                      );
-                      return technologies.length > 0 ? (
-                        technologies.map((item, index) => (
-                          <span key={`${item}-${index}`} className="tech-tag">
-                            <span className="tag-icon">⬡</span>
-                            {item}
-                          </span>
-                        ))
-                      ) : (
-                        <p>Chưa cập nhật công nghệ.</p>
-                      );
-                    })()}
-                  </div>
                 </div>
               </div>
             </div>

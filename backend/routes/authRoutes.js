@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const pool = require("../db");
 
+
 // 1 API Đăng nhập
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;

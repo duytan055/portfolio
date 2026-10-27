@@ -64,6 +64,7 @@ router.get("/", async (req, res) => {
         slug,
         short_description,
         description,
+        key_features,
         image_url,
         github_url,
         demo_url,
@@ -88,6 +89,7 @@ router.post("/", uploadProject.single("image"), async (req, res) => {
       title,
       short_description,
       description,
+      key_features,
       technologies,
       github_url,
       demo_url,
@@ -102,6 +104,7 @@ router.post("/", uploadProject.single("image"), async (req, res) => {
 
     const imageUrl = req.file ? `/uploads/projects/${req.file.filename}` : "";
     const techArray = parseTechArray(technologies);
+    const featureArray = parseTechArray(key_features);
     const isFeaturedBool = parseBoolean(is_featured, true);
 
     const slug = await generateUniqueSlug(title);
@@ -112,13 +115,14 @@ router.post("/", uploadProject.single("image"), async (req, res) => {
         slug, 
         short_description, 
         description, 
+        key_features,
         image_url, 
         technologies, 
         github_url, 
         demo_url, 
         is_featured
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
 
@@ -127,6 +131,7 @@ router.post("/", uploadProject.single("image"), async (req, res) => {
       slug,
       short_description || "",
       description || "",
+      featureArray,
       imageUrl,
       techArray,
       github_url || "",
@@ -150,6 +155,7 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
       title,
       short_description,
       description,
+      key_features,
       image_url,
       technologies,
       github_url,
@@ -167,6 +173,7 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
       ? `/uploads/projects/${req.file.filename}`
       : image_url || "";
     const techArray = parseTechArray(technologies);
+    const featureArray = parseTechArray(key_features);
     const isFeaturedBool = parseBoolean(is_featured, true);
 
     const slug = await generateUniqueSlug(title, id);
@@ -177,12 +184,13 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
         slug = $2,
         short_description = $3,
         description = $4,
-        image_url = $5,
-        technologies = $6,
-        github_url = $7,
-        demo_url = $8,
-        is_featured = $9
-      WHERE id = $10
+        key_features = $5,
+        image_url = $6,
+        technologies = $7,
+        github_url = $8,
+        demo_url = $9,
+        is_featured = $10
+      WHERE id = $11
       RETURNING *;
     `;
 
@@ -191,6 +199,7 @@ router.put("/:id", uploadProject.single("image"), async (req, res) => {
       slug,
       short_description || "",
       description || "",
+      featureArray,
       finalImageUrl,
       techArray,
       github_url || "",

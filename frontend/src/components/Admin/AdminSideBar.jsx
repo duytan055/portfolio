@@ -21,7 +21,7 @@ function AdminSidebar() {
     <aside className="admin-sidebar">
       <div className="sidebar-brand">
         <span className="brand-dot"></span>
-        <h2>Admin Console</h2>
+        <h2>Admin Dashboard</h2>
       </div>
 
       <nav className="sidebar-nav">

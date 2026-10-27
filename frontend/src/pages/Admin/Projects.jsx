@@ -20,6 +20,7 @@ const INITIAL_FORM_STATE = {
   title: "",
   short_description: "",
   description: "",
+  key_features: "",
   image_url: "",
   technologies: "",
   github_url: "",
@@ -96,10 +97,15 @@ function Projects() {
       ? project.technologies.join(", ")
       : project.technologies || "";
 
+    const featureString = Array.isArray(project.key_features)
+      ? project.key_features.join(", ")
+      : project.key_features || "";
+
     setFormData({
       title: project.title || "",
       short_description: project.short_description || "",
       description: project.description || "",
+      key_features: featureString,
       image_url: project.image_url || "",
       technologies: techString,
       github_url: project.github_url || "",
@@ -146,6 +152,12 @@ function Projects() {
       data.append("title", project.title || "");
       data.append("short_description", project.short_description || "");
       data.append("description", project.description || "");
+      data.append(
+        "key_features",
+        Array.isArray(project.key_features)
+          ? project.key_features.join(", ")
+          : project.key_features || "",
+      );
       data.append(
         "technologies",
         Array.isArray(project.technologies)
@@ -195,6 +207,7 @@ function Projects() {
     data.append("title", formData.title);
     data.append("short_description", formData.short_description || "");
     data.append("description", formData.description || "");
+    data.append("key_features", formData.key_features || "");
     data.append("technologies", formData.technologies || "");
     data.append("github_url", formData.github_url || "");
     data.append("demo_url", formData.demo_url || "");
@@ -350,9 +363,6 @@ function Projects() {
                         </div>
                         <div>
                           <h3>{project.title}</h3>
-                          <p>
-                            {project.short_description || project.description}
-                          </p>
                         </div>
                       </div>
                     </td>
@@ -524,7 +534,17 @@ function Projects() {
                     </div>
                   )}
                 </div>
-
+                <div className="form-group">
+                  <label>Tính năng chính</label>
+                  <input
+                    type="text"
+                    name="key_features"
+                    value={formData.key_features}
+                    onChange={handleChange}
+                    placeholder="Tính năng...,"
+                  />
+                  <small>Ngăn cách các tính năng bằng dấu phẩy</small>
+                </div>
                 <div className="form-group">
                   <label>Công nghệ</label>
                   <input
